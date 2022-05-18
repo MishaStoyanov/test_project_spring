@@ -1,0 +1,34 @@
+<html xmlns:c="http://www.w3.org/1999/XSL/Transform" lang="en">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+<h3>Users list</h3>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Login</th>
+        <th>Password</th>
+        <th>FirstName</th>
+        <th>LastName</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${userPage.content}">
+        <td th:text="${user.id}" ></td>
+        <td th:text="${user.login}" ></td>
+        <td th:text="${user.password}"></td>
+        <td th:text="${user.firstname}"></td>
+        <td th:text="${user.lastname}"></td>
+    </tr>
+    </tbody>
+</table>
+<a th:if="${userPage.totalPages > 0}" class="pagination"
+     th:each="pageNumber : ${pageNumbers}">
+    &nbsp;<a th:href="@{/users/dashboard(size=${userPage.size}, page=${pageNumber})}"
+       th:text=${pageNumber}
+       ></a>
+</a>
+</body>
+</html>
