@@ -1,34 +1,57 @@
-<html xmlns:c="http://www.w3.org/1999/XSL/Transform" lang="en">
+<html lang="en">
 <head>
     <title>Dashboard</title>
 </head>
 <body>
 <h3>Users list</h3>
+<br><input type="button" value="Roles" onclick="window.location='roleslist.jsp'">
+
+<form th:action="@{/users/dashboard}" method="post">
+
+    <p><label for="keyword">Search: </label>
+        <input id="keyword" type="text" size="20" name="keyword">
+        <input type="submit" value="Search">
+    <p>
+</form>
 <table>
     <thead>
     <tr>
-        <th>ID</th>
-        <th>Login</th>
+        <th>
+            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'id'}, sortDir=${columnSortDir.get(0)})}">ID</a>
+        </th>
+        <th>
+            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'login'}, sortDir=${columnSortDir.get(1)})}">Login</a>
+        </th>
         <th>Password</th>
-        <th>FirstName</th>
-        <th>LastName</th>
+        <th>
+            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'firstname'}, sortDir=${columnSortDir.get(2)})}">First name</a>
+        </th>
+        <th>
+            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'lastname'}, sortDir=${columnSortDir.get(3)})}">Last name</a>
+        </th>
+        <th>Delete</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="user : ${userPage.content}">
-        <td th:text="${user.id}" ></td>
-        <td th:text="${user.login}" ></td>
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.login}"></td>
         <td th:text="${user.password}"></td>
         <td th:text="${user.firstname}"></td>
         <td th:text="${user.lastname}"></td>
+        <td>
+            <a th:href="@{/users/dashboard(page=${currentPage}, keyword=(${keyword != null} ? ${keyword}), deleteID=${user.getId()})}"
+               onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+        </td>
     </tr>
     </tbody>
 </table>
+
 <a th:if="${userPage.totalPages > 0}" class="pagination"
-     th:each="pageNumber : ${pageNumbers}">
-    &nbsp;<a th:href="@{/users/dashboard(size=${userPage.size}, page=${pageNumber})}"
-       th:text=${pageNumber}
-       ></a>
+   th:each="pageNumber : ${pageNumbers}">
+    &nbsp;<a th:href="@{'/users/dashboard?page=' + ${pageNumber} + ${linkParameters}}"
+             th:text=${pageNumber}>
+</a>
 </a>
 </body>
 </html>

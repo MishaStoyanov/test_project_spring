@@ -1,12 +1,13 @@
 package net.integrio.test_project.controller;
 
 import lombok.extern.java.Log;
-import net.integrio.test_project.Constants;
+import net.integrio.test_project.resources.Constants;
 import net.integrio.test_project.dto.UsersDto;
 import net.integrio.test_project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 
 @Controller
 @Log
@@ -41,36 +41,35 @@ public class UsersController {
         HttpSession session = request.getSession();
         if (userService.auth(login, password)) {
             session.setAttribute(Constants.isAuthorized, true);
-            model.addAttribute(Constants.userList, userService.search(PageRequest.of(0, 10)));
-            Page<UsersDto> userPage = userService.search(PageRequest.of(0, 10));
-
-            model.addAttribute("userPage", userPage);
-
-            int totalPages = userPage.getTotalPages();
-            if (totalPages > 0) {
-                List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
-                        .boxed()
-                        .collect(Collectors.toList());
-                model.addAttribute("pageNumbers", pageNumbers);
-            }
-            } else {
+            session.setAttribute(Constants.username, login);
+            search(1, "", 0, "id", "asc", model);//???
+        } else {
             session.setAttribute(Constants.isAuthorized, false);
-                UsersDto usersDto = new UsersDto();
-                usersDto.setLogin(login);
-                model.addAttribute("user", usersDto);
-            }
-            return userService.auth(login, password) ? "users/dashboard" : "login";
+            UsersDto usersDto = new UsersDto();
+            usersDto.setLogin(login);
+            model.addAttribute("user", usersDto);
         }
+        return userService.auth(login, password) ? "users/dashboard" : "login";
+    }
 
 
     @GetMapping("/users/dashboard")
-    public String search(@RequestParam("page") int page, @RequestParam("size") int size, Model model){
+    public String search(@RequestParam("page") int page, @RequestParam(value = "keyword", defaultValue = "") String keyword,
+                         @RequestParam(value = "deleteID", defaultValue = "0") long deleteID,
+                         @RequestParam(value = "sortedBy", defaultValue = "id") String sortedBy,
+                         @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir, Model model) {
         int currentPage = Optional.of(page).orElse(1);
-        int pageSize = Optional.of(size).orElse(10);
-        Page<UsersDto> userPage = userService.search(PageRequest.of(currentPage - 1, pageSize));
-        log.info("page = "  + page + " size = " + size);
-        model.addAttribute("userPage", userPage);
+        int pageSize = 10;
+        Sort sort = sortDir.equals("asc") ? Sort.by(sortedBy).ascending() : Sort.by(sortedBy).descending();
 
+        if (deleteID != 0) {
+            userService.deleteById(deleteID);
+            if (userService.search(PageRequest.of(currentPage - 1, pageSize, sort), keyword,sortedBy,sortDir).isEmpty())
+                currentPage--;//check if last element on the page
+        }
+
+        Page<UsersDto> userPage = userService.search(PageRequest.of(currentPage - 1, pageSize, sort),
+                keyword, sortedBy,sortDir);
         int totalPages = userPage.getTotalPages();
         if (totalPages > 0) {
             List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
@@ -78,6 +77,21 @@ public class UsersController {
                     .collect(Collectors.toList());
             model.addAttribute("pageNumbers", pageNumbers);
         }
+
+        model.addAttribute("userPage", userPage);
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("sortField", sortedBy);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("linkParameters", userService.getLinkParameters(keyword, sortedBy, sortDir,deleteID));
+        model.addAttribute("columnSortDir", userService.getColumnsSortDir(sortedBy,sortDir));
+        model.addAttribute("keyword", keyword);
+        log.info("page = " + page + ", keyword = " + keyword + ", deleteID = " + deleteID + ", sortedBy = " + sort);
+        return "users/dashboard";
+    }
+
+    @PostMapping("/users/dashboard")
+    public String setKeyword(@RequestParam(Constants.keyword) String keyword, Model model) {
+        search(1, keyword, 0, "id", "asc", model);
         return "users/dashboard";
     }
 }

@@ -1,4 +1,4 @@
-package net.integrio.test_project;
+package net.integrio.test_project.resources;
 
 
 public class Constants {

@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FilterConfig {
 
-    @Bean
+   @Bean
     public FilterRegistrationBean<LogFilter> loggingFilterRegistrationBean() {
         FilterRegistrationBean<LogFilter> registrationBean
                 = new FilterRegistrationBean<>();

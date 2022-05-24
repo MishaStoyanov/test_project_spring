@@ -1,7 +1,7 @@
 package net.integrio.test_project.filters;
 
 import lombok.extern.java.Log;
-import net.integrio.test_project.Constants;
+import net.integrio.test_project.resources.Constants;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -10,8 +10,9 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 //@Component
-//@Order(1)
+//@Order(2)
 @Log
+//@WebFilter(urlPatterns = {"/users/*"})
 public class AuthFilter implements Filter {
 
     @Override
@@ -26,9 +27,12 @@ public class AuthFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         HttpSession session = request.getSession();
-
+       // log.info("username = " + request.getParameter(Constants.login) + " password = " + request.getParameter(Constants.password));
         if (session.getAttribute(Constants.isAuthorized) != null && (boolean) session.getAttribute(Constants.isAuthorized)) {
             filterChain.doFilter(request, response);
+        } else {
+            log.info("non authorized:"+request.getRequestURL());
+            response.sendRedirect(request.getContextPath()+"/login");
         }
     }
 

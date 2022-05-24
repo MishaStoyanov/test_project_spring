@@ -3,14 +3,12 @@ package net.integrio.test_project.service;
 import net.integrio.test_project.dto.UsersDto;
 import net.integrio.test_project.entity.Users;
 import net.integrio.test_project.repository.UsersRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
+import static net.integrio.test_project.resources.SortingColumns.userSortingColumns;
 
 @Service
 
@@ -41,8 +39,15 @@ public class DefaultUsersService implements UserService {
     }
 
     @Override
-    public Page<UsersDto> search(Pageable pageable) {
-        List<Users> users = usersRepository.findAll();
+    public Page<UsersDto> search(Pageable pageable, String keyword, String sortedBy, String sortDir) {
+        Set<String> keywords = new HashSet<>();
+        keywords.add(keyword);
+        List<Users> users;
+        if (keyword != null && !keyword.equals(""))
+            users = usersRepository.findUsersByLoginOrFirstnameOrLastname(keywords, sortedBy, sortDir);
+        else
+            users = usersRepository.findAll(pageable.getSort());//тут должна быть сортировка, до ретурна
+
         List<Users> result;
         int pageSize = pageable.getPageSize();
         int currentPage = pageable.getPageNumber();
@@ -55,5 +60,29 @@ public class DefaultUsersService implements UserService {
             result = users.subList(startItem, toIndex);
         }
         return new PageImpl<>(usersConverter.fromUserListToUserDtoList(result), PageRequest.of(currentPage, pageSize), users.size());
+    }
+
+    @Override
+    public long deleteById(long id) {
+        usersRepository.deleteById(id);
+        return id;
+    }
+
+    @Override
+    public String getLinkParameters(String keyword, String sortedBy, String sortDir, long deleteId) {
+        return (!keyword.equals("") ? ("&keyword=" + keyword) : "") +
+                (!sortedBy.equals("") ? ("&sortedBy=" + sortedBy) : "") +
+                (!sortDir.equals("") ? ("&sortDir=" + sortDir) : "") +
+                (deleteId != 0 ? ("&deleteID=" + deleteId) : "");
+
+    }
+
+    @Override
+    public List<String> getColumnsSortDir(String sortedBy, String sortDir) {
+        List<String> columnSortDir = new ArrayList<>();//4 columns that sorted, get their sortDirections for links
+        for (String column : userSortingColumns) {
+            columnSortDir.add(column.equals(sortedBy) && sortDir.equals("asc") ? "desc" : "asc");
+        }
+        return columnSortDir;
     }
 }
