@@ -10,6 +10,7 @@ public interface UserService {
     boolean auth(String login, String password);
     Page<UsersDto> search(Pageable pageable, String keyword, String sortedBy, String sortDir);
     long deleteById(long id);
-    String getLinkParameters(String keyword, String sortedBy, String sortDir, long deleteId);
+    String getLinkParameters(String keyword, String sortedBy, String sortDir);
     List<String> getColumnsSortDir(String sortedBy, String sortDir);
+    List<Integer> getNumberPages(Page<UsersDto> rolesPage);
 }

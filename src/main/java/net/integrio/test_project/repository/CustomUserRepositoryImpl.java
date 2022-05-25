@@ -29,12 +29,9 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
             predicates.add(cb.like(firstnamePath, "%" + keyword + "%"));
             predicates.add(cb.like(lastnamePath, "%" + keyword + "%"));
         }
-        query.select(user)
-                .where(cb.or(predicates.toArray(new Predicate[0]))).
-                orderBy(sortDir.equals("asc") ? cb.asc(user.get(sortedBy)) : cb.desc(user.get(sortedBy)));
+        query.select(user).where(cb.or(predicates.toArray(new Predicate[0]))).orderBy(sortDir.equals("asc") ? cb.asc(user.get(sortedBy)) : cb.desc(user.get(sortedBy)));
 
-        return entityManager.createQuery(query)
-                .getResultList();
+        return entityManager.createQuery(query).getResultList();
     }
 }
 

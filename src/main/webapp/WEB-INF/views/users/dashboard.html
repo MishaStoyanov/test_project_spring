@@ -4,7 +4,7 @@
 </head>
 <body>
 <h3>Users list</h3>
-<br><input type="button" value="Roles" onclick="window.location='roleslist.jsp'">
+<input type="button" value="Roles" onclick="window.location='/users/roleslist'">
 
 <form th:action="@{/users/dashboard}" method="post">
 
@@ -24,10 +24,12 @@
         </th>
         <th>Password</th>
         <th>
-            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'firstname'}, sortDir=${columnSortDir.get(2)})}">First name</a>
+            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'firstname'}, sortDir=${columnSortDir.get(2)})}">First
+                name</a>
         </th>
         <th>
-            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'lastname'}, sortDir=${columnSortDir.get(3)})}">Last name</a>
+            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'lastname'}, sortDir=${columnSortDir.get(3)})}">Last
+                name</a>
         </th>
         <th>Delete</th>
     </tr>
@@ -40,7 +42,7 @@
         <td th:text="${user.firstname}"></td>
         <td th:text="${user.lastname}"></td>
         <td>
-            <a th:href="@{/users/dashboard(page=${currentPage}, keyword=(${keyword != null} ? ${keyword}), deleteID=${user.getId()})}"
+            <a th:href="'/users/dashboard?page=' + ${currentPage} + ${linkParameters} + '&deleteID=' + ${user.id}"
                onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
         </td>
     </tr>

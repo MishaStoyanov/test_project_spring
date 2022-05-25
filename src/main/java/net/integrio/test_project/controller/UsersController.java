@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Controller
 @Log
@@ -54,7 +51,7 @@ public class UsersController {
 
 
     @GetMapping("/users/dashboard")
-    public String search(@RequestParam("page") int page, @RequestParam(value = "keyword", defaultValue = "") String keyword,
+    public String search(@RequestParam(value = "page", defaultValue = "1") int page, @RequestParam(value = "keyword", defaultValue = "") String keyword,
                          @RequestParam(value = "deleteID", defaultValue = "0") long deleteID,
                          @RequestParam(value = "sortedBy", defaultValue = "id") String sortedBy,
                          @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir, Model model) {
@@ -64,26 +61,23 @@ public class UsersController {
 
         if (deleteID != 0) {
             userService.deleteById(deleteID);
-            if (userService.search(PageRequest.of(currentPage - 1, pageSize, sort), keyword,sortedBy,sortDir).isEmpty())
+            if (userService.search(PageRequest.of(currentPage - 1, pageSize, sort), keyword, sortedBy, sortDir).isEmpty())
                 currentPage--;//check if last element on the page
         }
 
         Page<UsersDto> userPage = userService.search(PageRequest.of(currentPage - 1, pageSize, sort),
-                keyword, sortedBy,sortDir);
-        int totalPages = userPage.getTotalPages();
-        if (totalPages > 0) {
-            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
-                    .boxed()
-                    .collect(Collectors.toList());
-            model.addAttribute("pageNumbers", pageNumbers);
+                keyword, sortedBy, sortDir);
+
+        if (userService.getNumberPages(userPage) != null) {
+            model.addAttribute("pageNumbers", userService.getNumberPages(userPage));
         }
 
         model.addAttribute("userPage", userPage);
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("sortField", sortedBy);
         model.addAttribute("sortDir", sortDir);
-        model.addAttribute("linkParameters", userService.getLinkParameters(keyword, sortedBy, sortDir,deleteID));
-        model.addAttribute("columnSortDir", userService.getColumnsSortDir(sortedBy,sortDir));
+        model.addAttribute("linkParameters", userService.getLinkParameters(keyword, sortedBy, sortDir));
+        model.addAttribute("columnSortDir", userService.getColumnsSortDir(sortedBy, sortDir));
         model.addAttribute("keyword", keyword);
         log.info("page = " + page + ", keyword = " + keyword + ", deleteID = " + deleteID + ", sortedBy = " + sort);
         return "users/dashboard";

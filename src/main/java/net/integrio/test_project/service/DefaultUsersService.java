@@ -1,5 +1,6 @@
 package net.integrio.test_project.service;
 
+import net.integrio.test_project.dto.RolesDto;
 import net.integrio.test_project.dto.UsersDto;
 import net.integrio.test_project.entity.Users;
 import net.integrio.test_project.repository.UsersRepository;
@@ -7,6 +8,8 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static net.integrio.test_project.resources.SortingColumns.userSortingColumns;
 
@@ -46,7 +49,7 @@ public class DefaultUsersService implements UserService {
         if (keyword != null && !keyword.equals(""))
             users = usersRepository.findUsersByLoginOrFirstnameOrLastname(keywords, sortedBy, sortDir);
         else
-            users = usersRepository.findAll(pageable.getSort());//тут должна быть сортировка, до ретурна
+            users = usersRepository.findAll(pageable.getSort());
 
         List<Users> result;
         int pageSize = pageable.getPageSize();
@@ -69,11 +72,10 @@ public class DefaultUsersService implements UserService {
     }
 
     @Override
-    public String getLinkParameters(String keyword, String sortedBy, String sortDir, long deleteId) {
+    public String getLinkParameters(String keyword, String sortedBy, String sortDir) {
         return (!keyword.equals("") ? ("&keyword=" + keyword) : "") +
                 (!sortedBy.equals("") ? ("&sortedBy=" + sortedBy) : "") +
-                (!sortDir.equals("") ? ("&sortDir=" + sortDir) : "") +
-                (deleteId != 0 ? ("&deleteID=" + deleteId) : "");
+                (!sortDir.equals("") ? ("&sortDir=" + sortDir) : "");
 
     }
 
@@ -84,5 +86,16 @@ public class DefaultUsersService implements UserService {
             columnSortDir.add(column.equals(sortedBy) && sortDir.equals("asc") ? "desc" : "asc");
         }
         return columnSortDir;
+    }
+
+    @Override
+    public List<Integer> getNumberPages(Page<UsersDto> rolesPage) {
+        int totalPages = rolesPage.getTotalPages();
+        if (totalPages > 0) {
+            return IntStream.rangeClosed(1, totalPages)
+                    .boxed()
+                    .collect(Collectors.toList());
+        }
+        return null;
     }
 }
