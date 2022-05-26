@@ -40,7 +40,7 @@ public class RolesController {
             if (rolesService.search(PageRequest.of(currentPage - 1, pageSize, sort), keyword, sortedBy, sortDir).isEmpty())
                 currentPage--;//check if last element on the page
         }
-        Page<RolesDto> rolesPage = rolesService.search(PageRequest.of(currentPage - 1, pageSize,sort), keyword, sortedBy, sortDir);
+        Page<RolesDto> rolesPage = rolesService.search(PageRequest.of(currentPage - 1, pageSize, sort), keyword, sortedBy, sortDir);
 
         if (rolesService.getNumberPages(rolesPage) != null) {
             model.addAttribute("pageNumbers", rolesService.getNumberPages(rolesPage));
@@ -49,15 +49,25 @@ public class RolesController {
         model.addAttribute("rolesPage", rolesPage);
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("columnSortDir", rolesService.getColumnsSortDir(sortedBy, sortDir));
-        model.addAttribute("linkParameters", rolesService.getLinkParameters(keyword,sortedBy, sortDir,0));
+        model.addAttribute("linkParameters", rolesService.getLinkParameters(keyword, sortedBy, sortDir, 0));
         model.addAttribute("keyword", keyword);
         log.info("page = " + page + ", keyword = " + keyword + ", sort = " + sort + ", deleteID = " + deleteID);
         return "users/roleslist";
     }
 
     @PostMapping("/users/roleslist")
-    public String setKeyword(@RequestParam(value = "keyword") String keyword, Model model){
-        search(1,keyword,"id","asc",0, model);
+    public String setParameters(@RequestParam(value = "keyword", defaultValue = "") String keyword,
+                                @RequestParam(value = "id", defaultValue = "0") long id,
+                                @RequestParam(value = "role", defaultValue = "") String role,
+                                @RequestParam(value = "page", defaultValue = "1") int page,
+                                @RequestParam(value = "sortedBy", defaultValue = "id") String sortedBy,
+                                @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir,
+                                Model model) {
+        if (!role.equals("")) {
+            rolesService.setRoleInfoById(id, role);
+        }
+        search(keyword.equals("") ? page : 1, keyword, sortedBy, sortDir, 0, model);
         return "users/roleslist";
     }
+
 }

@@ -58,6 +58,7 @@ public class DefaultRolesService implements RolesService {
         }
         return null;
     }
+
     @Override
     public List<String> getColumnsSortDir(String sortedBy, String sortDir) {
         List<String> columnSortDir = new ArrayList<>();//2 columns that sorted, get their sortDirections for links
@@ -77,8 +78,18 @@ public class DefaultRolesService implements RolesService {
     }
 
     @Override
-    public long deleteById(long id){
+    public long deleteById(long id) {
         rolesRepository.deleteById(id);
         return id;
+    }
+
+    @Override
+    public void setRoleInfoById(long id, String role) {
+        Roles roles = new Roles();
+        if (id != 0)
+            roles.setId(id);
+        roles.setRole(role);
+
+        rolesRepository.save(roles);
     }
 }

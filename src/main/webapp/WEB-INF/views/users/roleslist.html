@@ -7,9 +7,17 @@
 <body>
 <h3>Roles list</h3>
 <input type="button" value="Users" onclick="window.location='dashboard'">
+<input type="button" value="Edit" onclick="window.location='edituser'">
+<form method="post">
+    <p><label for="id">Enter id: </label>
+        <input id="id" type="text" size="3" name="id" value="">
+    <p>Change/add new role: <label for="role">
+    </label><input id="role" type="text" size="20" name="role" value="">
+        <br><br><input type="submit" value="Change data" name="ChangeData">
+    </p>
+</form>
 
 <form th:action="@{/users/roleslist}" method="post">
-
     <p><label for="keyword">Search: </label>
         <input id="keyword" type="text" size="20" name="keyword">
         <input type="submit" value="Search">

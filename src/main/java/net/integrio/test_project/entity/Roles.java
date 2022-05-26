@@ -33,4 +33,5 @@ public class Roles {
     public int hashCode() {
         return getClass().hashCode();
     }
+
 }

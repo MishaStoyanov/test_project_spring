@@ -15,4 +15,5 @@ public interface RolesService {
     //сделать общий сервис для некоторых методов?(дубликат кода)
     String getLinkParameters(String keyword, String sortedBy, String sortDir, long deleteId);
     long deleteById(long id);
+    void setRoleInfoById(long id, String role);
 }
