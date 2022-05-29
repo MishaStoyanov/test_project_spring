@@ -23,4 +23,5 @@ public class RolesConvertor {
         rolesDto.setRole(roles.getRole());
         return rolesDto;
     }
+
 }

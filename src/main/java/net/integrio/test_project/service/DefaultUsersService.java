@@ -1,6 +1,5 @@
 package net.integrio.test_project.service;
 
-import net.integrio.test_project.dto.RolesDto;
 import net.integrio.test_project.dto.UsersDto;
 import net.integrio.test_project.entity.Users;
 import net.integrio.test_project.repository.UsersRepository;
@@ -98,4 +97,31 @@ public class DefaultUsersService implements UserService {
         }
         return null;
     }
+
+    @Override
+    public UsersDto findById(Long id) {
+        Users user = usersRepository.getById(id);
+        return usersConverter.fromUserToUserDto(user);
+    }
+
+    @Override
+    public void saveUserInfo(long id, String login, String password, String firstname, String lastname) {
+        UsersDto userById = new UsersDto();
+        if (id != 0) {//old user, only new fields updated
+            userById = findById(id);
+            userById.setLogin(login.equals("") ? userById.getLogin() : login);
+            userById.setPassword(password.equals("") ? userById.getPassword() : password);
+            userById.setFirstname(firstname.equals("") ? userById.getFirstname() : firstname);
+            userById.setLastname(lastname.equals("") ? userById.getLastname() : lastname);
+            usersRepository.save(usersConverter.fromUserDtoToUser(userById));
+        } else if (!login.equals("") && !password.equals("") && !firstname.equals("") && !lastname.equals("")) {
+            userById.setId(id);//new user, all fields not null
+            userById.setLogin(login);
+            userById.setPassword(password);
+            userById.setFirstname(firstname);
+            userById.setLastname(lastname);
+            usersRepository.save(usersConverter.fromUserDtoToUser(userById));
+        }
+    }
 }
+

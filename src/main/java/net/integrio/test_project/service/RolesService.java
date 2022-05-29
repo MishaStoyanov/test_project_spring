@@ -16,4 +16,5 @@ public interface RolesService {
     String getLinkParameters(String keyword, String sortedBy, String sortDir, long deleteId);
     long deleteById(long id);
     void setRoleInfoById(long id, String role);
+    List<RolesDto> findAll();
 }

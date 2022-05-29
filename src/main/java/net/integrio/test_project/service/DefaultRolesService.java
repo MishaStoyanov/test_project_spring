@@ -92,4 +92,9 @@ public class DefaultRolesService implements RolesService {
 
         rolesRepository.save(roles);
     }
+
+    @Override
+    public List<RolesDto> findAll() {
+        return rolesConvertor.fromRolesListToRoleDtoList(rolesRepository.findAll());
+    }
 }

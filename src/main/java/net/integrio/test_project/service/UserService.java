@@ -13,4 +13,6 @@ public interface UserService {
     String getLinkParameters(String keyword, String sortedBy, String sortDir);
     List<String> getColumnsSortDir(String sortedBy, String sortDir);
     List<Integer> getNumberPages(Page<UsersDto> rolesPage);
+    UsersDto findById(Long id);
+    void saveUserInfo(long id, String login, String password, String firstname, String lastname);
 }

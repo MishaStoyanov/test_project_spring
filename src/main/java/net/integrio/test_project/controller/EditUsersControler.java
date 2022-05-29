@@ -1,14 +1,56 @@
 package net.integrio.test_project.controller;
 
+import lombok.extern.java.Log;
+import net.integrio.test_project.dto.UsersDto;
+import net.integrio.test_project.service.RolesService;
+import net.integrio.test_project.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+@Log
 @Controller
 
 public class EditUsersControler {
 
+    @Autowired
+    UserService userService;
+    @Autowired
+    RolesService rolesService;
+    long currentId = 0;
+
     @GetMapping("users/edituser")
-    public String start(){
+    public String start(Model model) {
+        model.addAttribute("currentUser", new UsersDto());
+        model.addAttribute("rolelist", rolesService.findAll());
+        return "users/edituser";
+    }
+
+    @PostMapping("users/changeData")
+    public String editUser(Model model,
+                           @RequestParam(value = "id", defaultValue = "0") Long id,
+                           @RequestParam(value = "login", defaultValue = "") String login,
+                           @RequestParam(value = "password", defaultValue = "") String password,
+                           @RequestParam(value = "firstname", defaultValue = "") String firstname,
+                           @RequestParam(value = "lastname", defaultValue = "") String lastname) {
+        UsersDto currentUser = null;
+        if (id != 0 && id != currentId) {
+            currentUser = userService.findById(id);
+            log.info("id = " + currentUser.getId() + "login = " + currentUser.getLogin() + ", password" + currentUser.getPassword() +
+                    ", firstname = " + currentUser.getFirstname() + ", lastname = " + currentUser.getLastname());
+            currentId = id;
+        } else if (!login.equals("") || !password.equals("") || !firstname.equals("") || !lastname.equals("")) {
+            userService.saveUserInfo(id, login, password, firstname, lastname);
+            currentUser = userService.findById(id);
+        }
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("id", id);//??почему не хочет читать филд с юзера
+        model.addAttribute("rolelist", rolesService.findAll());
         return "users/edituser";
     }
 }
+
+/*  th:attr="checked=${currentUserRole[iterStat.index]?true:false}"*/
