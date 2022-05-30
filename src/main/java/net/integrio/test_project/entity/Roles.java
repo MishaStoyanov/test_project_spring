@@ -4,7 +4,9 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "roles")
@@ -20,6 +22,10 @@ public class Roles {
 
     @Column(unique = true)
     private String role;
+
+
+    @ManyToMany(mappedBy = "roles", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    private Set<Users> users = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

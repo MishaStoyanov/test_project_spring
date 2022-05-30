@@ -2,6 +2,7 @@ package net.integrio.test_project.service;
 
 import lombok.AllArgsConstructor;
 import net.integrio.test_project.dto.RolesDto;
+import net.integrio.test_project.dto.UsersDto;
 import net.integrio.test_project.entity.Roles;
 import net.integrio.test_project.repository.RolesRepository;
 import org.springframework.data.domain.Page;
@@ -96,5 +97,21 @@ public class DefaultRolesService implements RolesService {
     @Override
     public List<RolesDto> findAll() {
         return rolesConvertor.fromRolesListToRoleDtoList(rolesRepository.findAll());
+    }
+
+    @Override
+    public List<Boolean> findByUsersId(Long id) {
+        List<Boolean> result = new ArrayList<>();
+        boolean isChecked;
+        for (RolesDto role : rolesConvertor.fromRolesListToRoleDtoList(rolesRepository.findAll())) {
+            isChecked = false;
+            for (RolesDto roleById : rolesConvertor.fromRolesListToRoleDtoList(rolesRepository.findRolesByUsersIdOrderById(id)))
+                if (Objects.equals(role.getId(), roleById.getId())) {
+                    isChecked = true;
+                    break;
+                }
+            result.add(isChecked);
+        }
+        return result;
     }
 }

@@ -1,6 +1,7 @@
 package net.integrio.test_project.service;
 
 import net.integrio.test_project.dto.RolesDto;
+import net.integrio.test_project.dto.UsersDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,4 +18,5 @@ public interface RolesService {
     long deleteById(long id);
     void setRoleInfoById(long id, String role);
     List<RolesDto> findAll();
+    List<Boolean> findByUsersId(Long id);
 }

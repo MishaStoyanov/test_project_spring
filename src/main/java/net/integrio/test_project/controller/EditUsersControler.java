@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+
 @Log
 @Controller
 
@@ -26,6 +27,7 @@ public class EditUsersControler {
     public String start(Model model) {
         model.addAttribute("currentUser", new UsersDto());
         model.addAttribute("rolelist", rolesService.findAll());
+        model.addAttribute("userRoles", rolesService.findByUsersId(0L));
         return "users/edituser";
     }
 
@@ -35,7 +37,9 @@ public class EditUsersControler {
                            @RequestParam(value = "login", defaultValue = "") String login,
                            @RequestParam(value = "password", defaultValue = "") String password,
                            @RequestParam(value = "firstname", defaultValue = "") String firstname,
-                           @RequestParam(value = "lastname", defaultValue = "") String lastname) {
+                           @RequestParam(value = "lastname", defaultValue = "") String lastname,
+                           @RequestParam(value = "role") String [] selectedRoles) {
+
         UsersDto currentUser = null;
         if (id != 0 && id != currentId) {
             currentUser = userService.findById(id);
@@ -46,11 +50,11 @@ public class EditUsersControler {
             userService.saveUserInfo(id, login, password, firstname, lastname);
             currentUser = userService.findById(id);
         }
+
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("id", id);//??почему не хочет читать филд с юзера
         model.addAttribute("rolelist", rolesService.findAll());
+        model.addAttribute("userRoles", rolesService.findByUsersId(id));
         return "users/edituser";
     }
 }
-
-/*  th:attr="checked=${currentUserRole[iterStat.index]?true:false}"*/

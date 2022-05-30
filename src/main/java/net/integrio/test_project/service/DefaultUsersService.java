@@ -123,5 +123,10 @@ public class DefaultUsersService implements UserService {
             usersRepository.save(usersConverter.fromUserDtoToUser(userById));
         }
     }
+
+    @Override
+    public List<UsersDto> findByRolesId(Long id){
+        return usersConverter.fromUserListToUserDtoList(usersRepository.findUsersByRolesId(id));
+    }
 }
 
