@@ -10,6 +10,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 @Log
@@ -38,7 +47,7 @@ public class EditUsersControler {
                            @RequestParam(value = "password", defaultValue = "") String password,
                            @RequestParam(value = "firstname", defaultValue = "") String firstname,
                            @RequestParam(value = "lastname", defaultValue = "") String lastname,
-                           @RequestParam(value = "role") String [] selectedRoles) {
+                           @RequestParam(value = "role") String[] selectedRoles) {
 
         UsersDto currentUser = null;
         if (id != 0 && id != currentId) {
@@ -56,5 +65,25 @@ public class EditUsersControler {
         model.addAttribute("rolelist", rolesService.findAll());
         model.addAttribute("userRoles", rolesService.findByUsersId(id));
         return "users/edituser";
+    }
+
+    @PostMapping("users/uploadAvatar")
+    public String uploadAvatar(@RequestParam("file") MultipartFile file, Model model, HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        if (file.isEmpty()) {
+            return start(model);
+        }
+
+        String folder = "src/main/resources/static/images/";
+
+        try {
+            byte[] bytes = file.getBytes();
+            Path path = Paths.get(folder + "avatar_" + session.getAttribute("username") + ".jpg");
+            Files.write(path, bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return start(model);
     }
 }
