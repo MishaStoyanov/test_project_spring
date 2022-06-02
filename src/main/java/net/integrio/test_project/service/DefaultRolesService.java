@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import net.integrio.test_project.dto.RolesDto;
 import net.integrio.test_project.dto.UsersDto;
 import net.integrio.test_project.entity.Roles;
+import net.integrio.test_project.entity.Users;
 import net.integrio.test_project.repository.RolesRepository;
+import net.integrio.test_project.repository.UsersRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +25,7 @@ public class DefaultRolesService implements RolesService {
 
     private final RolesRepository rolesRepository;
     private final RolesConvertor rolesConvertor;
+    private final UsersRepository usersRepository;
 
     @Override
     public Page<RolesDto> search(Pageable pageable, String keyword, String sortedBy, String sortDir) {
@@ -113,5 +116,10 @@ public class DefaultRolesService implements RolesService {
             result.add(isChecked);
         }
         return result;
+    }
+
+    @Override
+    public void deleteByUsersId(Long id) {
+        rolesRepository.deleteRolesByUsersId(id);
     }
 }

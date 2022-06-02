@@ -12,8 +12,7 @@ import java.util.Set;
 @Table(name = "roles")
 @Getter
 @Setter
-@ToString
-@RequiredArgsConstructor
+
 public class Roles {
 
     @Id

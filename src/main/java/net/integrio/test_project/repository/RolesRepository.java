@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface RolesRepository extends JpaRepository<Roles, Long>, CustomRolesRepository {
     List<Roles> findRolesByUsersIdOrderById(Long id);
+    void deleteRolesByUsersId(Long id);
+    Roles findRolesByRole(String role);
 }

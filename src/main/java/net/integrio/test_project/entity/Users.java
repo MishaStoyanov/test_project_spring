@@ -12,8 +12,6 @@ import java.util.Set;
 @Table(name = "users")
 @Getter
 @Setter
-@ToString
-@RequiredArgsConstructor
 public class Users {
 
     @Id

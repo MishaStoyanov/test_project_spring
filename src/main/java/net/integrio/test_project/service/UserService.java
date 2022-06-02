@@ -16,4 +16,5 @@ public interface UserService {
     UsersDto findById(Long id);
     void saveUserInfo(long id, String login, String password, String firstname, String lastname);
     List<UsersDto> findByRolesId(Long id);
+    void saveRolesByUserId(Long userId, List<String> roleNames);
 }

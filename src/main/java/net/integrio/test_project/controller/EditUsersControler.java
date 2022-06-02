@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -19,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 
 @Log
@@ -47,7 +47,7 @@ public class EditUsersControler {
                            @RequestParam(value = "password", defaultValue = "") String password,
                            @RequestParam(value = "firstname", defaultValue = "") String firstname,
                            @RequestParam(value = "lastname", defaultValue = "") String lastname,
-                           @RequestParam(value = "role") String[] selectedRoles) {
+                           @RequestParam(value = "role", required = false) List<String> selectedRoles) {
 
         UsersDto currentUser = null;
         if (id != 0 && id != currentId) {
@@ -58,6 +58,9 @@ public class EditUsersControler {
         } else if (!login.equals("") || !password.equals("") || !firstname.equals("") || !lastname.equals("")) {
             userService.saveUserInfo(id, login, password, firstname, lastname);
             currentUser = userService.findById(id);
+            if (selectedRoles != null) {
+                userService.saveRolesByUserId(id, selectedRoles);
+            }
         }
 
         model.addAttribute("currentUser", currentUser);
@@ -83,7 +86,6 @@ public class EditUsersControler {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return start(model);
     }
 }

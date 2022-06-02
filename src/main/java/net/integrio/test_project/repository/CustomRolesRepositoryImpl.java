@@ -33,5 +33,7 @@ public class CustomRolesRepositoryImpl implements CustomRolesRepository {
         return entityManager.createQuery(query)
                 .getResultList();
     }
+
+
 }
 

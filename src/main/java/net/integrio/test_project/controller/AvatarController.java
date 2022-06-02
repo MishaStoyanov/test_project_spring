@@ -22,9 +22,9 @@ public class AvatarController {
     public String start(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession();
         String avatarpath = (new File(
-                "C:/Users/Acer/IdeaProjects/filter_proj/web/img/" + session.getAttribute("username") + "_avatar.jpg").exists())
-                ? "C:/Users/Acer/IdeaProjects/filter_proj/web/img/" + session.getAttribute("username") + "_avatar.jpg"
-                : "C:/Users/Acer/IdeaProjects/filter_proj/web/img/noavatar.jpg";
+                "C:/Users/Acer/IdeaProjects/test_project/src/main/resources/static/images/avatar_" + session.getAttribute("username") + ".jpg").exists())
+                ? "C:/Users/Acer/IdeaProjects/test_project/src/main/resources/static/images/avatar_" + session.getAttribute("username") + ".jpg"
+                : "C:/Users/Acer/IdeaProjects/test_project/src/main/resources/static/images/noavatar.jpg";
         File file = new File(avatarpath);
         context = config.getServletContext();
         response.setContentType(context.getMimeType(file.getName()));
