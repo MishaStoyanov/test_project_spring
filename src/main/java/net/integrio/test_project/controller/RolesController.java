@@ -1,5 +1,6 @@
 package net.integrio.test_project.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 
 import net.integrio.test_project.dto.RolesDto;
@@ -18,11 +19,10 @@ import java.util.Optional;
 
 @Controller
 @Log
-
+@RequiredArgsConstructor
 public class RolesController {
 
-    @Autowired
-    private RolesService rolesService;
+    private final RolesService rolesService;
 
     @GetMapping("/users/roleslist")
     public String search(@RequestParam(value = "page", defaultValue = "1") int page,
