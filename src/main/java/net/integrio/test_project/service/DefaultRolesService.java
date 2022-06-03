@@ -2,7 +2,6 @@ package net.integrio.test_project.service;
 
 import lombok.AllArgsConstructor;
 import net.integrio.test_project.dto.RolesDto;
-import net.integrio.test_project.dto.UsersDto;
 import net.integrio.test_project.entity.Roles;
 import net.integrio.test_project.entity.Users;
 import net.integrio.test_project.repository.RolesRepository;
@@ -122,4 +121,18 @@ public class DefaultRolesService implements RolesService {
     public void deleteByUsersId(Long id) {
         rolesRepository.deleteRolesByUsersId(id);
     }
+    @Override
+    public void saveRolesByUserId(Long userId, List<String> roleNames){
+        Set<Roles> roles = new HashSet<>();
+        Users user = usersRepository.getById(userId);
+        for (String roleName : roleNames){
+            roles.add(rolesRepository.findRolesByRole(roleName));
+        }
+        user.setRoles(roles);
+        for (Roles role :roles) {
+         //   role.setUsers(new HashSet<>());
+            role.getUsers().add(user);
+        }
+    }
+
 }

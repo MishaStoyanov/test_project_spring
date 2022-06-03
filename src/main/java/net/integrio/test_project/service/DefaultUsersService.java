@@ -3,9 +3,7 @@ package net.integrio.test_project.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
 import net.integrio.test_project.dto.UsersDto;
-import net.integrio.test_project.entity.Roles;
 import net.integrio.test_project.entity.Users;
-import net.integrio.test_project.repository.RolesRepository;
 import net.integrio.test_project.repository.UsersRepository;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -16,12 +14,12 @@ import java.util.stream.IntStream;
 
 import static net.integrio.test_project.resources.SortingColumns.userSortingColumns;
 @Service
+@Log
 @AllArgsConstructor
 public class DefaultUsersService implements UserService {
 
     private final UsersRepository usersRepository;
     private final UsersConverter usersConverter;
-    private final RolesRepository rolesRepository;
 
     @Override
     public UsersDto findByLogin(String login) {
@@ -127,17 +125,6 @@ public class DefaultUsersService implements UserService {
     public List<UsersDto> findByRolesId(Long id){
         return usersConverter.fromUserListToUserDtoList(usersRepository.findUsersByRolesId(id));
     }
-    @Override
-    public void saveRolesByUserId(Long userId, List<String> roleNames){
-        Set<Roles> roles = new HashSet<>();
-        Users user = usersRepository.getById(userId);
-        for (String roleName : roleNames){
-            roles.add(rolesRepository.findRolesByRole(roleName));
-        }
-        user.setRoles(roles);
-        for (Roles role :roles) {
-            role.getUsers().add(user);
-        }
-    }
+
 }
 

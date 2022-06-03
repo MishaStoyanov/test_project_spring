@@ -20,5 +20,5 @@ public interface RolesService {
     List<RolesDto> findAll();
     List<Boolean> findByUsersId(Long id);
     void deleteByUsersId(Long id);
-   // void saveByUsersId(Long userId, List<Long> rolesId);
+    void saveRolesByUserId(Long userId, List<String> roleNames);
 }

@@ -59,7 +59,7 @@ public class EditUsersControler {
             userService.saveUserInfo(id, login, password, firstname, lastname);
             currentUser = userService.findById(id);
             if (selectedRoles != null) {
-                userService.saveRolesByUserId(id, selectedRoles);
+                rolesService.saveRolesByUserId(id, selectedRoles);
             }
         }
 
