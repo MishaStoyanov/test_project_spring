@@ -3,9 +3,8 @@ package net.integrio.test_project.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 
-import net.integrio.test_project.dto.RolesDto;
+import net.integrio.test_project.entity.Roles;
 import net.integrio.test_project.service.RolesService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -40,7 +39,7 @@ public class RolesController {
             if (rolesService.search(PageRequest.of(currentPage - 1, pageSize, sort), keyword, sortedBy, sortDir).isEmpty())
                 currentPage--;//check if last element on the page
         }
-        Page<RolesDto> rolesPage = rolesService.search(PageRequest.of(currentPage - 1, pageSize, sort), keyword, sortedBy, sortDir);
+        Page<Roles> rolesPage = rolesService.search(PageRequest.of(currentPage - 1, pageSize, sort), keyword, sortedBy, sortDir);
 
         if (rolesService.getNumberPages(rolesPage) != null) {
             model.addAttribute("pageNumbers", rolesService.getNumberPages(rolesPage));

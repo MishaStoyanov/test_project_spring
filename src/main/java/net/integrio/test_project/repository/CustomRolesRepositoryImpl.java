@@ -1,6 +1,9 @@
 package net.integrio.test_project.repository;
 
 import net.integrio.test_project.entity.Roles;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -14,7 +17,7 @@ public class CustomRolesRepositoryImpl implements CustomRolesRepository {
     private EntityManager entityManager;
 
     @Override
-    public List<Roles> findRolesByRole(Set<String> keywords, String sortedBy, String sortDir) {
+    public Page<Roles> findRolesByRole(Set<String> keywords, String sortedBy, String sortDir, Pageable pageable) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Roles> query = cb.createQuery(Roles.class);
@@ -30,8 +33,7 @@ public class CustomRolesRepositoryImpl implements CustomRolesRepository {
                 .where(cb.or(predicates.toArray(new Predicate[0])))
                 .orderBy(sortDir.equals("asc") ? cb.asc(role.get(sortedBy)) : cb.desc(role.get(sortedBy)));
 
-        return entityManager.createQuery(query)
-                .getResultList();
+        return new PageImpl<>(entityManager.createQuery(query).getResultList(), pageable, 10);
     }
 
 

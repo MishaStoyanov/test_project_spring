@@ -1,5 +1,6 @@
 package net.integrio.test_project.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import net.integrio.test_project.dto.UsersDto;
 import net.integrio.test_project.service.RolesService;
@@ -23,14 +24,12 @@ import java.util.List;
 
 @Log
 @Controller
-
+@RequiredArgsConstructor
 public class EditUsersControler {
 
-    @Autowired
-    UserService userService;
-    @Autowired
-    RolesService rolesService;
-    long currentId = 0;
+    private final UserService userService;
+    private final RolesService rolesService;
+    private long currentId = 0;
 
     @GetMapping("users/edituser")
     public String start(Model model) {

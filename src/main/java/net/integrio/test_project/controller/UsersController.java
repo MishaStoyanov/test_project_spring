@@ -1,10 +1,11 @@
 package net.integrio.test_project.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import net.integrio.test_project.entity.Users;
 import net.integrio.test_project.resources.Constants;
 import net.integrio.test_project.dto.UsersDto;
 import net.integrio.test_project.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,10 +21,9 @@ import java.util.Optional;
 
 @Controller
 @Log
-//@AllArgsConstructor
+@RequiredArgsConstructor
 public class UsersController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @GetMapping({"/login", "/"})
     public String start(Model model) {
@@ -65,7 +65,7 @@ public class UsersController {
                 currentPage--;//check if last element on the page
         }
 
-        Page<UsersDto> userPage = userService.search(PageRequest.of(currentPage - 1, pageSize, sort),
+        Page<Users> userPage = userService.search(PageRequest.of(currentPage - 1, pageSize, sort),
                 keyword, sortedBy, sortDir);
 
         if (userService.getNumberPages(userPage) != null) {

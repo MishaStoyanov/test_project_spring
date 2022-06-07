@@ -1,6 +1,9 @@
 package net.integrio.test_project.repository;
 
 import net.integrio.test_project.entity.Users;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -14,7 +17,7 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
     private EntityManager entityManager;
 
     @Override
-    public List<Users> findUsersByLoginOrFirstnameOrLastname(Set<String> keywords, String sortedBy, String sortDir) {
+    public Page<Users> findUsersByLoginOrFirstnameOrLastname(Set<String> keywords, String sortedBy, String sortDir, Pageable pageable) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Users> query = cb.createQuery(Users.class);
         Root<Users> user = query.from(Users.class);
@@ -30,8 +33,7 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
             predicates.add(cb.like(lastnamePath, "%" + keyword + "%"));
         }
         query.select(user).where(cb.or(predicates.toArray(new Predicate[0]))).orderBy(sortDir.equals("asc") ? cb.asc(user.get(sortedBy)) : cb.desc(user.get(sortedBy)));
-
-        return entityManager.createQuery(query).getResultList();
+        return new PageImpl<>(entityManager.createQuery(query).getResultList(), pageable, 10);
     }
 }
 

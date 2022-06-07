@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static net.integrio.test_project.resources.SortingColumns.userSortingColumns;
+
 @Service
 @Log
 @AllArgsConstructor
@@ -38,33 +39,31 @@ public class DefaultUsersService implements UserService {
     }
 
     @Override
-    public Page<UsersDto> search(Pageable pageable, String keyword, String sortedBy, String sortDir) {
+    public Page<Users> search(Pageable pageable, String keyword, String sortedBy, String sortDir) {
         Set<String> keywords = new HashSet<>();
         keywords.add(keyword);
-        List<Users> users;
+        Page<Users> result;
         if (keyword != null && !keyword.equals(""))
-            users = usersRepository.findUsersByLoginOrFirstnameOrLastname(keywords, sortedBy, sortDir);
+            result = usersRepository.findUsersByLoginOrFirstnameOrLastname(keywords, sortedBy, sortDir, pageable);
         else
-            users = usersRepository.findAll(pageable.getSort());
-
-        List<Users> result;
-        int pageSize = pageable.getPageSize();
-        int currentPage = pageable.getPageNumber();
-        int startItem = currentPage * pageSize;
-
-        if (users.size() < startItem) {
-            result = Collections.emptyList();
-        } else {
-            int toIndex = Math.min(startItem + pageSize, users.size());
-            result = users.subList(startItem, toIndex);
-        }
-        return new PageImpl<>(usersConverter.fromUserListToUserDtoList(result), PageRequest.of(currentPage, pageSize), users.size());
+            result = usersRepository.findAll(pageable);
+        return result;
     }
 
     @Override
-    public long deleteById(long id) {
+    public List<Integer> getNumberPages(Page<Users> usersPage) {
+        int totalPages = usersPage.getTotalPages();
+        if (totalPages > 0) {
+            return IntStream.rangeClosed(1, totalPages)
+                    .boxed()
+                    .collect(Collectors.toList());
+        }
+        return null;
+    }
+
+    @Override
+    public void deleteById(long id) {
         usersRepository.deleteById(id);
-        return id;
     }
 
     @Override
@@ -82,17 +81,6 @@ public class DefaultUsersService implements UserService {
             columnSortDir.add(column.equals(sortedBy) && sortDir.equals("asc") ? "desc" : "asc");
         }
         return columnSortDir;
-    }
-
-    @Override
-    public List<Integer> getNumberPages(Page<UsersDto> rolesPage) {
-        int totalPages = rolesPage.getTotalPages();
-        if (totalPages > 0) {
-            return IntStream.rangeClosed(1, totalPages)
-                    .boxed()
-                    .collect(Collectors.toList());
-        }
-        return null;
     }
 
     @Override
@@ -119,11 +107,6 @@ public class DefaultUsersService implements UserService {
             userById.setLastname(lastname);
             usersRepository.save(usersConverter.fromUserDtoToUser(userById));
         }
-    }
-
-    @Override
-    public List<UsersDto> findByRolesId(Long id){
-        return usersConverter.fromUserListToUserDtoList(usersRepository.findUsersByRolesId(id));
     }
 
 }

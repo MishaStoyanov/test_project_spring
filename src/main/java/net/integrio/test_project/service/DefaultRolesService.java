@@ -7,8 +7,6 @@ import net.integrio.test_project.entity.Users;
 import net.integrio.test_project.repository.RolesRepository;
 import net.integrio.test_project.repository.UsersRepository;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -27,32 +25,20 @@ public class DefaultRolesService implements RolesService {
     private final UsersRepository usersRepository;
 
     @Override
-    public Page<RolesDto> search(Pageable pageable, String keyword, String sortedBy, String sortDir) {
-        List<Roles> roles;
+    public Page<Roles> search(Pageable pageable, String keyword, String sortedBy, String sortDir) {
         Set<String> keywords = new HashSet<>();
         keywords.add(keyword);
-
-        if (keyword.equals(""))
-            roles = rolesRepository.findAll(pageable.getSort());
+        Page<Roles> result;
+        if (keyword != null && !keyword.equals(""))
+            result = rolesRepository.findRolesByRole(keywords, sortedBy, sortDir, pageable);
         else
-            roles = rolesRepository.findRolesByRole(keywords, sortedBy, sortDir);
+            result = rolesRepository.findAll(pageable);
 
-        List<Roles> result;
-        int pageSize = pageable.getPageSize();
-        int currentPage = pageable.getPageNumber();
-        int startItem = currentPage * pageSize;
-
-        if (roles.size() < startItem) {
-            result = Collections.emptyList();
-        } else {
-            int toIndex = Math.min(startItem + pageSize, roles.size());
-            result = roles.subList(startItem, toIndex);
-        }
-        return new PageImpl<>(rolesConvertor.fromRolesListToRoleDtoList(result), PageRequest.of(currentPage, pageSize, pageable.getSort()), roles.size());
+        return result;
     }
 
     @Override
-    public List<Integer> getNumberPages(Page<RolesDto> rolesPage) {
+    public List<Integer> getNumberPages(Page<Roles> rolesPage) {
         int totalPages = rolesPage.getTotalPages();
         if (totalPages > 0) {
             return IntStream.rangeClosed(1, totalPages)
@@ -81,9 +67,8 @@ public class DefaultRolesService implements RolesService {
     }
 
     @Override
-    public long deleteById(long id) {
+    public void deleteById(long id) {
         rolesRepository.deleteById(id);
-        return id;
     }
 
     @Override
@@ -121,16 +106,16 @@ public class DefaultRolesService implements RolesService {
     public void deleteByUsersId(Long id) {
         rolesRepository.deleteRolesByUsersId(id);
     }
+
     @Override
-    public void saveRolesByUserId(Long userId, List<String> roleNames){
+    public void saveRolesByUserId(Long userId, List<String> roleNames) {
         Set<Roles> roles = new HashSet<>();
         Users user = usersRepository.getById(userId);
-        for (String roleName : roleNames){
+        for (String roleName : roleNames) {
             roles.add(rolesRepository.findRolesByRole(roleName));
         }
         user.setRoles(roles);
-        for (Roles role :roles) {
-         //   role.setUsers(new HashSet<>());
+        for (Roles role : roles) {
             role.getUsers().add(user);
         }
     }

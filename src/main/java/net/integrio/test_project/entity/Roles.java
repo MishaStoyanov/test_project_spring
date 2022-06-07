@@ -23,7 +23,7 @@ public class Roles {
     private String role;
 
 
-    @ManyToMany(mappedBy = "roles", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "roles", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Users> users = new HashSet<>();
 
     @Override
