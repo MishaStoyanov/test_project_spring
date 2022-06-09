@@ -1,6 +1,6 @@
 package net.integrio.test_project.controller;
 
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.java.Log;
 import net.integrio.test_project.entity.Role;
 import net.integrio.test_project.entity.User;
@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +37,10 @@ public class EditUsersControler {
     private final UserService userService;
     private final RolesService rolesService;
 
+
+    /* @Autowired
+     public SessionScopedObject
+ */
     @GetMapping("users/edituser")
     public String start(Model model,
                         @RequestParam(value = "id", required = false) Long id) {
@@ -46,11 +52,7 @@ public class EditUsersControler {
 
     @PostMapping("users/changeData")
     public String editUser(Model model,
-                           @RequestParam(value = "id", defaultValue = "0") Long id,
-                           @RequestParam(value = "login", defaultValue = "") String login,
-                           @RequestParam(value = "password", defaultValue = "") String password,
-                           @RequestParam(value = "firstname", defaultValue = "") String firstname,
-                           @RequestParam(value = "lastname", defaultValue = "") String lastname,
+                           @Validated @ModelAttribute UserFormModel userFormModel,
                            @RequestParam(value = "role", required = false) List<String> selectedRoles) {
         //1 - get entity form db by id
         //2 - if null = new
@@ -81,5 +83,45 @@ public class EditUsersControler {
             e.printStackTrace();
         }
         return "redirect:/users/edituser";
+    }
+
+    @Getter
+    @Setter
+    public static class UserFormModel {
+
+        Long id;
+        @NotNull(message = "Fill login")
+        @NotEmpty
+        private String login;
+        @NotNull(message = "Set password")
+        @NotEmpty
+        private String password;
+        @NotNull(message = "Fill firstname")
+        @NotEmpty
+        private String firstname;
+        @NotNull(message = "Fill lastname")
+        @NotEmpty
+        private String lastname;
+       /* @NotNull(message = "Set user roles")
+        @NotEmpty
+        private Set<Role> roles;*/
+
+        public User setFormFieldsToUser() {
+            User user = new User();
+            if (id != null) user.setId(id);
+            user.setLogin(login);
+            user.setPassword(password);
+            user.setFirstname(firstname);
+            user.setLastname(lastname);
+            return user;
+        }
+    }
+
+    private Set<Role> fromListRolesToSet(List<String> roles) {
+        Set<Role> resultRoles = new HashSet<>();
+        for (String role : roles) {
+            resultRoles.add(rolesService.findByRole(role));
+        }
+        return resultRoles;
     }
 }

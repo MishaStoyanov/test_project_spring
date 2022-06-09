@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -26,11 +27,10 @@ public class UsersController {
     private final UserService userService;
 
     @GetMapping({"/login", "/"})
-    public String start(Model model) {
-        UsersDto usersDto = new UsersDto();
-        usersDto.setLogin("");
-        model.addAttribute("user", usersDto);
-        return "login";
+    public ModelAndView start() {
+        User user = new User();
+        user.setLogin("");
+        return new ModelAndView("login", "user", user);
     }
 
     @PostMapping("/auth")

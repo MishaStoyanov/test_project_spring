@@ -7,7 +7,10 @@ import net.integrio.test_project.entity.User;
 import net.integrio.test_project.repository.RolesRepository;
 import net.integrio.test_project.repository.UsersRepository;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,15 +37,39 @@ public class DefaultUsersService implements UserService {
     }
 
     @Override
-    public Page<Users> search(Pageable pageable, String keyword, String sortedBy, String sortDir) {
-        Set<String> keywords = new HashSet<>();
-        keywords.add(keyword);
-        Page<Users> result;
-        if (keyword != null && !keyword.equals(""))
-            result = usersRepository.findUsersByLoginOrFirstnameOrLastname(keywords, sortedBy, sortDir, pageable);
-        else
-            result = usersRepository.findAll(pageable);
-        return result;
+    public Page<User> search(Pageable pageable, String keyword) {
+        return this.usersRepository.findAll((Specification<User>) (root, query, criteriaBuilder) -> {
+            if (StringUtils.hasText(keyword)) {
+                return criteriaBuilder.or(
+                        criteriaBuilder.like(
+                                criteriaBuilder.upper(
+                                        root.get("login")
+                                ),
+                                criteriaBuilder.upper(
+                                        criteriaBuilder.literal("%" + keyword + "%")
+                                )
+                        ),
+                        criteriaBuilder.like(
+                                criteriaBuilder.upper(
+                                        root.get("firstname")
+                                ),
+                                criteriaBuilder.upper(
+                                        criteriaBuilder.literal("%" + keyword + "%")
+                                )
+                        ),
+                        criteriaBuilder.like(
+                                criteriaBuilder.upper(
+                                        root.get("lastname")
+                                ),
+                                criteriaBuilder.upper(
+                                        criteriaBuilder.literal("%" + keyword + "%")
+                                )
+                        )
+
+                );
+            }
+            return null;
+        }, pageable);
     }
 
     @Override
@@ -82,6 +109,7 @@ public class DefaultUsersService implements UserService {
     public User findById(Long id) {
         return usersRepository.getById(id);
     }
+
 
     @Override
     @Transactional
