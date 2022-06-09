@@ -15,8 +15,8 @@
     <input type="submit" value="Upload avatar" name="avatarLoading"/>
 </form>
 
-<form method="post" th:object="${currentUser}" action="changeData">
-    <p>Id: <input type="text" name="id" size="20" th:value=${id}></p>
+<form method="post" th:object="${user}" action="changeData">
+    <p>Id: <input type="text" name="id" th:field="*{id}"  size="20" th:value=${id}></p>
     <p>Login: <input type="text" th:field="*{login}" name="login" size="20" th:value=${login}/>
         First name: <input type="text" th:field="*{firstname}" name="lastname" size="20" th:value=${firstname}/></p>
     <p>Password: <input type="text" th:field="*{password}" name="password" size="20"/>

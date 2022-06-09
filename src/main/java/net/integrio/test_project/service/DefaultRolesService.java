@@ -1,14 +1,15 @@
 package net.integrio.test_project.service;
 
 import lombok.AllArgsConstructor;
-import net.integrio.test_project.dto.RolesDto;
-import net.integrio.test_project.entity.Roles;
-import net.integrio.test_project.entity.Users;
+import net.integrio.test_project.entity.Role;
+import net.integrio.test_project.entity.User;
 import net.integrio.test_project.repository.RolesRepository;
 import net.integrio.test_project.repository.UsersRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,24 +22,29 @@ import static net.integrio.test_project.resources.SortingColumns.userSortingColu
 public class DefaultRolesService implements RolesService {
 
     private final RolesRepository rolesRepository;
-    private final RolesConvertor rolesConvertor;
     private final UsersRepository usersRepository;
 
     @Override
-    public Page<Roles> search(Pageable pageable, String keyword, String sortedBy, String sortDir) {
-        Set<String> keywords = new HashSet<>();
-        keywords.add(keyword);
-        Page<Roles> result;
-        if (keyword != null && !keyword.equals(""))
-            result = rolesRepository.findRolesByRole(keywords, sortedBy, sortDir, pageable);
-        else
-            result = rolesRepository.findAll(pageable);
-
-        return result;
+    public Page<Role> search(Pageable pageable, String keyword) {
+        return this.rolesRepository.findAll((Specification<Role>) (root, query, criteriaBuilder) -> {
+            if (StringUtils.hasText(keyword)) {
+                return criteriaBuilder.or(
+                        criteriaBuilder.like(
+                                criteriaBuilder.upper(
+                                        root.get("role")
+                                ),
+                                criteriaBuilder.upper(
+                                        criteriaBuilder.literal("%" + keyword + "%")
+                                )
+                        )
+                );
+            }
+            return null;
+        }, pageable);
     }
 
     @Override
-    public List<Integer> getNumberPages(Page<Roles> rolesPage) {
+    public List<Integer> getNumberPages(Page<Role> rolesPage) {
         int totalPages = rolesPage.getTotalPages();
         if (totalPages > 0) {
             return IntStream.rangeClosed(1, totalPages)
@@ -73,7 +79,7 @@ public class DefaultRolesService implements RolesService {
 
     @Override
     public void setRoleInfoById(long id, String role) {
-        Roles roles = new Roles();
+        Role roles = new Role();
         if (id != 0)
             roles.setId(id);
         roles.setRole(role);
@@ -82,17 +88,17 @@ public class DefaultRolesService implements RolesService {
     }
 
     @Override
-    public List<RolesDto> findAll() {
-        return rolesConvertor.fromRolesListToRoleDtoList(rolesRepository.findAll());
+    public List<Role> findAll() {
+        return rolesRepository.findAll();
     }
 
     @Override
     public List<Boolean> findByUsersId(Long id) {
         List<Boolean> result = new ArrayList<>();
         boolean isChecked;
-        for (RolesDto role : rolesConvertor.fromRolesListToRoleDtoList(rolesRepository.findAll())) {
+        for (Role role : rolesRepository.findAll()) {
             isChecked = false;
-            for (RolesDto roleById : rolesConvertor.fromRolesListToRoleDtoList(rolesRepository.findRolesByUsersIdOrderById(id)))
+            for (Role roleById : rolesRepository.findRolesByUsersIdOrderById(id))
                 if (Objects.equals(role.getId(), roleById.getId())) {
                     isChecked = true;
                     break;
@@ -109,15 +115,18 @@ public class DefaultRolesService implements RolesService {
 
     @Override
     public void saveRolesByUserId(Long userId, List<String> roleNames) {
-        Set<Roles> roles = new HashSet<>();
-        Users user = usersRepository.getById(userId);
+        Set<Role> roles = new HashSet<>();
+        User user = usersRepository.getById(userId);
         for (String roleName : roleNames) {
             roles.add(rolesRepository.findRolesByRole(roleName));
         }
         user.setRoles(roles);
-        for (Roles role : roles) {
+        for (Role role : roles) {
             role.getUsers().add(user);
         }
     }
 
+    public Role findByRole(String role){
+        return rolesRepository.findRolesByRole(role);
+    }
 }

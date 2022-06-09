@@ -2,13 +2,16 @@ package net.integrio.test_project.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
-import net.integrio.test_project.dto.UsersDto;
+import net.integrio.test_project.entity.Role;
+import net.integrio.test_project.entity.User;
 import net.integrio.test_project.service.RolesService;
 import net.integrio.test_project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +22,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Log
@@ -29,13 +34,13 @@ public class EditUsersControler {
 
     private final UserService userService;
     private final RolesService rolesService;
-    private long currentId = 0;
 
     @GetMapping("users/edituser")
-    public String start(Model model) {
-        model.addAttribute("currentUser", new UsersDto());
+    public String start(Model model,
+                        @RequestParam(value = "id", required = false) Long id) {
+        model.addAttribute("user", userService.findById(id));
         model.addAttribute("rolelist", rolesService.findAll());
-        model.addAttribute("userRoles", rolesService.findByUsersId(0L));
+        model.addAttribute("userRoles", rolesService.findByUsersId(id));
         return "users/edituser";
     }
 
@@ -47,25 +52,15 @@ public class EditUsersControler {
                            @RequestParam(value = "firstname", defaultValue = "") String firstname,
                            @RequestParam(value = "lastname", defaultValue = "") String lastname,
                            @RequestParam(value = "role", required = false) List<String> selectedRoles) {
-
-        UsersDto currentUser = null;
-        if (id != 0 && id != currentId) {
-            currentUser = userService.findById(id);
-            log.info("id = " + currentUser.getId() + "login = " + currentUser.getLogin() + ", password" + currentUser.getPassword() +
-                    ", firstname = " + currentUser.getFirstname() + ", lastname = " + currentUser.getLastname());
-            currentId = id;
-        } else if (!login.equals("") || !password.equals("") || !firstname.equals("") || !lastname.equals("")) {
-            userService.saveUserInfo(id, login, password, firstname, lastname);
-            currentUser = userService.findById(id);
-            if (selectedRoles != null) {
-                rolesService.saveRolesByUserId(id, selectedRoles);
-            }
-        }
-
-        model.addAttribute("currentUser", currentUser);
-        model.addAttribute("id", id);//??почему не хочет читать филд с юзера
+        //1 - get entity form db by id
+        //2 - if null = new
+        //3 - fill from model
+        //4 - save
+        User user = userFormModel.setFormFieldsToUser();
+        userService.saveUserInfo(user, fromListRolesToSet(selectedRoles));
+        model.addAttribute("user", user);
         model.addAttribute("rolelist", rolesService.findAll());
-        model.addAttribute("userRoles", rolesService.findByUsersId(id));
+        model.addAttribute("userRoles", rolesService.findByUsersId(user.getId()));
         return "users/edituser";
     }
 
@@ -73,7 +68,7 @@ public class EditUsersControler {
     public String uploadAvatar(@RequestParam("file") MultipartFile file, Model model, HttpServletRequest request) {
         HttpSession session = request.getSession();
         if (file.isEmpty()) {
-            return start(model);
+            return "redirect:/users/edituser";
         }
 
         String folder = "src/main/resources/static/images/";
@@ -85,6 +80,6 @@ public class EditUsersControler {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return start(model);
+        return "redirect:/users/edituser";
     }
 }

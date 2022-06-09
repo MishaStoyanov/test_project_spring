@@ -1,6 +1,6 @@
 package net.integrio.test_project.repository;
 
-import net.integrio.test_project.entity.Roles;
+import net.integrio.test_project.entity.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -17,11 +17,11 @@ public class CustomRolesRepositoryImpl implements CustomRolesRepository {
     private EntityManager entityManager;
 
     @Override
-    public Page<Roles> findRolesByRole(Set<String> keywords, String sortedBy, String sortDir, Pageable pageable) {
+    public Page<Role> findRolesByRole(Set<String> keywords, String sortedBy, String sortDir, Pageable pageable) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Roles> query = cb.createQuery(Roles.class);
-        Root<Roles> role = query.from(Roles.class);
+        CriteriaQuery<Role> query = cb.createQuery(Role.class);
+        Root<Role> role = query.from(Role.class);
 
         Path<String> rolePath = role.get("role");
 

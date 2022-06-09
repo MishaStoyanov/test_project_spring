@@ -1,13 +1,17 @@
 package net.integrio.test_project.repository;
 
-import net.integrio.test_project.entity.Roles;
-import net.integrio.test_project.entity.Users;
+import net.integrio.test_project.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.List;
+import java.util.Optional;
 
-public interface UsersRepository extends JpaRepository<Users, Long>, CustomUserRepository {
-    Users findByLogin(String login);
-    List<Users> findUsersByRolesId(Long id);
+public interface UsersRepository extends JpaSpecificationExecutor<User>, JpaRepository<User, Long> {
+    Optional<User> findByLogin(String login);
+    Page<User> findUsersByLoginContainsAndFirstnameContainsAndLastnameContains(String keyword1, String keyword2, String keyword3, Pageable pageable);
+
+    //List<Users> findUsersByRolesId(Long id);
     //TODO:dv methods
 }
