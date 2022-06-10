@@ -80,7 +80,7 @@ public class UsersController {
         return "users/dashboard";
     }
 
-    @GetMapping("users/dashboard/delete/{id}")//??надо сохранять данные по которым идет сортировка??
+    @GetMapping("users/dashboard/delete/{id}")
     public String deleting(@RequestParam(value = "page", defaultValue = "1") int page, @RequestParam(value = "keyword", defaultValue = "") String keyword,
                            @RequestParam(value = "sortedBy", defaultValue = "id") String sortedBy,
                            @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir,

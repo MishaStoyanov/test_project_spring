@@ -21,4 +21,5 @@ public interface RolesService {
     void deleteByUsersId(Long id);
     void saveRolesByUserId(Long userId, List<String> roleNames);
     Role findByRole(String role);
+    List<Boolean> getEmptyBooleanRolesList();
 }

@@ -17,5 +17,5 @@ public interface UserService {
     List<String> getColumnsSortDir(String sortedBy, String sortDir);
     List<Integer> getNumberPages(Page<User> rolesPage);
     User findById(Long id);
-    void saveUserInfo(User newUser, Set<Role> newUserRoles);
+    void saveUserInfo(User newUser, List<String> newUserRoles);
 }

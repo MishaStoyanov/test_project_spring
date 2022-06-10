@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
 @Log
 @Controller
 @RequiredArgsConstructor
@@ -42,24 +41,23 @@ public class EditUsersControler {
      public SessionScopedObject
  */
     @GetMapping("users/edituser")
-    public String start(Model model,
-                        @RequestParam(value = "id", required = false) Long id) {
-        model.addAttribute("user", userService.findById(id));
+    public String start(Model model, @RequestParam(value = "id", required = false) Long id) {
+
+        model.addAttribute("user", id == null ? new User() : userService.findById(id));
         model.addAttribute("rolelist", rolesService.findAll());
-        model.addAttribute("userRoles", rolesService.findByUsersId(id));
+        model.addAttribute("userRoles", id == null ? rolesService.getEmptyBooleanRolesList() : rolesService.findByUsersId(id));
         return "users/edituser";
     }
 
     @PostMapping("users/changeData")
     public String editUser(Model model,
-                           @Validated @ModelAttribute UserFormModel userFormModel,
-                           @RequestParam(value = "role", required = false) List<String> selectedRoles) {
+                           @Validated @ModelAttribute UserFormModel userFormModel) {
         //1 - get entity form db by id
         //2 - if null = new
         //3 - fill from model
         //4 - save
         User user = userFormModel.setFormFieldsToUser();
-        userService.saveUserInfo(user, fromListRolesToSet(selectedRoles));
+        userService.saveUserInfo(user, userFormModel.getRoles());
         model.addAttribute("user", user);
         model.addAttribute("rolelist", rolesService.findAll());
         model.addAttribute("userRoles", rolesService.findByUsersId(user.getId()));
@@ -67,7 +65,7 @@ public class EditUsersControler {
     }
 
     @PostMapping("users/uploadAvatar")
-    public String uploadAvatar(@RequestParam("file") MultipartFile file, Model model, HttpServletRequest request) {
+    public String uploadAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
         HttpSession session = request.getSession();
         if (file.isEmpty()) {
             return "redirect:/users/edituser";
@@ -102,12 +100,14 @@ public class EditUsersControler {
         @NotNull(message = "Fill lastname")
         @NotEmpty
         private String lastname;
-       /* @NotNull(message = "Set user roles")
+        @NotNull(message = "Set user roles")
         @NotEmpty
-        private Set<Role> roles;*/
+        private List<String> roles;
+        //??Стоит ли как-то роли в модель пихать, и тут же через сервис делать из листа сет??
 
         public User setFormFieldsToUser() {
             User user = new User();
+            Set<Role> setRole = new HashSet<>();
             if (id != null) user.setId(id);
             user.setLogin(login);
             user.setPassword(password);
@@ -115,13 +115,5 @@ public class EditUsersControler {
             user.setLastname(lastname);
             return user;
         }
-    }
-
-    private Set<Role> fromListRolesToSet(List<String> roles) {
-        Set<Role> resultRoles = new HashSet<>();
-        for (String role : roles) {
-            resultRoles.add(rolesService.findByRole(role));
-        }
-        return resultRoles;
     }
 }

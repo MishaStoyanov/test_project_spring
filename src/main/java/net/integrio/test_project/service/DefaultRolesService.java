@@ -126,7 +126,15 @@ public class DefaultRolesService implements RolesService {
         }
     }
 
-    public Role findByRole(String role){
+    public Role findByRole(String role) {
         return rolesRepository.findRolesByRole(role);
+    }
+
+    public List<Boolean> getEmptyBooleanRolesList() {
+        List<Boolean> result = new ArrayList<>();
+        for (Role role : rolesRepository.findAll()) {
+            result.add(false);
+        }
+        return result;
     }
 }
