@@ -113,16 +113,21 @@ public class DefaultUsersService implements UserService {
 
     @Override
     @Transactional
-    public void saveUserInfo(User newUser, Set<Role> newUserRoles) {
+    public void saveUserInfo(User newUser, List<String> newUserRoles) {
         //1 -save user
         //2 -save role
-
-       for (Role role: newUserRoles){
+       for (Role role: fromListRolesToSet(newUserRoles)){
             newUser.getRoles().add(role);
             role.getUsers().add(newUser);
         }
         usersRepository.save(newUser);
     }
-
+    private Set<Role> fromListRolesToSet(List<String> roles) {
+        Set<Role> resultRoles = new HashSet<>();
+        for (String role : roles) {
+            resultRoles.add(rolesRepository.findRolesByRole(role));
+        }
+        return resultRoles;
+    }
 }
 
