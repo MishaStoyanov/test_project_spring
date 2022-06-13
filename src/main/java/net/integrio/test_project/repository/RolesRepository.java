@@ -1,7 +1,6 @@
 package net.integrio.test_project.repository;
 
 import net.integrio.test_project.entity.Role;
-import net.integrio.test_project.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

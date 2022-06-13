@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit role</title>
+</head>
+<body>
+<h3>Edit role</h3>
+<input type="button" value="Users" onclick="window.location='dashboardStart'">
+<input type="button" value="Roles" onclick="window.location='roleslistStart'">
+<form method="post" th:object="${role}" action="changeRoleData">
+    <p>Id: <input type="text" name="id" th:field="*{id}"  size="20" th:value=${id}></p>
+    <p>Role: <input type="text" th:field="*{role}" name="role" size="20" th:value=${role}/></p>
+
+    <input type="submit" value="Change data" name="changeRoleData">
+</form>
+</body>
+</html>

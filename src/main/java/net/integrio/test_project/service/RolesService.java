@@ -12,14 +12,11 @@ public interface RolesService {
     List<Integer> getNumberPages(Page<Role> rolesPage);
 
     List<String> getColumnsSortDir(String sortedBy, String sortDir);
-    //сделать общий сервис для некоторых методов?(дубликат кода)
-    String getLinkParameters(String keyword, String sortedBy, String sortDir, long deleteId);
+    String getLinkParameters(String keyword, String sortField, String sortDir);
     void deleteById(long id);
-    void setRoleInfoById(long id, String role);
+    void saveInfo(Role role);
     List<Role> findAll();
     List<Boolean> findByUsersId(Long id);
-    void deleteByUsersId(Long id);
-    void saveRolesByUserId(Long userId, List<String> roleNames);
-    Role findByRole(String role);
+    Role findById(Long id);
     List<Boolean> getEmptyBooleanRolesList();
 }

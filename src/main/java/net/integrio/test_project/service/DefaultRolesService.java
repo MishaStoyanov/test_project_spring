@@ -2,7 +2,6 @@ package net.integrio.test_project.service;
 
 import lombok.AllArgsConstructor;
 import net.integrio.test_project.entity.Role;
-import net.integrio.test_project.entity.User;
 import net.integrio.test_project.repository.RolesRepository;
 import net.integrio.test_project.repository.UsersRepository;
 import org.springframework.data.domain.Page;
@@ -15,14 +14,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static net.integrio.test_project.resources.SortingColumns.userSortingColumns;
+import static net.integrio.test_project.resources.SortingColumns.roleSortingColumns;
 
 @Service
 @AllArgsConstructor
 public class DefaultRolesService implements RolesService {
 
     private final RolesRepository rolesRepository;
-    private final UsersRepository usersRepository;
 
     @Override
     public Page<Role> search(Pageable pageable, String keyword) {
@@ -55,21 +53,22 @@ public class DefaultRolesService implements RolesService {
     }
 
     @Override
-    public List<String> getColumnsSortDir(String sortedBy, String sortDir) {
+    public List<String> getColumnsSortDir(String sortField, String sortDir) {
         List<String> columnSortDir = new ArrayList<>();//2 columns that sorted, get their sortDirections for links
-        for (String column : userSortingColumns) {
-            columnSortDir.add(column.equals(sortedBy) && sortDir.equals("asc") ? "desc" : "asc");
+        for (String column : roleSortingColumns) {
+            if (column.equals(sortField) && sortDir.equals("asc"))
+                columnSortDir.add("desc");
+            else
+                columnSortDir.add("asc");
         }
         return columnSortDir;
     }
 
     @Override
-    public String getLinkParameters(String keyword, String sortedBy, String sortDir, long deleteId) {
-        return (!keyword.equals("") ? ("&keyword=" + keyword) : "") +
-                (!sortedBy.equals("") ? ("&sortedBy=" + sortedBy) : "") +
-                (!sortDir.equals("") ? ("&sortDir=" + sortDir) : "") +
-                (deleteId != 0 ? ("&deleteID=" + deleteId) : "");
-
+    public String getLinkParameters(String keyword, String sortField, String sortDir) {
+        return (keyword != null ? ("&keyword=" + keyword) : "") +
+                (!sortField.equals("") ? ("&sortField=" + sortField) : "") +
+                (!sortDir.equals("") ? ("&sortDir=" + sortDir) : "");
     }
 
     @Override
@@ -78,13 +77,8 @@ public class DefaultRolesService implements RolesService {
     }
 
     @Override
-    public void setRoleInfoById(long id, String role) {
-        Role roles = new Role();
-        if (id != 0)
-            roles.setId(id);
-        roles.setRole(role);
-
-        rolesRepository.save(roles);
+    public void saveInfo(Role role) {
+        rolesRepository.save(role);
     }
 
     @Override
@@ -96,38 +90,19 @@ public class DefaultRolesService implements RolesService {
     public List<Boolean> findByUsersId(Long id) {
         List<Boolean> result = new ArrayList<>();
         boolean isChecked;
-        for (Role role : rolesRepository.findAll()) {
-            isChecked = false;
-            for (Role roleById : rolesRepository.findRolesByUsersIdOrderById(id))
-                if (Objects.equals(role.getId(), roleById.getId())) {
-                    isChecked = true;
-                    break;
-                }
-            result.add(isChecked);
-        }
-        return result;
-    }
-
-    @Override
-    public void deleteByUsersId(Long id) {
-        rolesRepository.deleteRolesByUsersId(id);
-    }
-
-    @Override
-    public void saveRolesByUserId(Long userId, List<String> roleNames) {
-        Set<Role> roles = new HashSet<>();
-        User user = usersRepository.getById(userId);
-        for (String roleName : roleNames) {
-            roles.add(rolesRepository.findRolesByRole(roleName));
-        }
-        user.setRoles(roles);
-        for (Role role : roles) {
-            role.getUsers().add(user);
-        }
-    }
-
-    public Role findByRole(String role) {
-        return rolesRepository.findRolesByRole(role);
+        if (id != null) {
+            for (Role role : rolesRepository.findAll()) {
+                isChecked = false;
+                for (Role roleById : rolesRepository.findRolesByUsersIdOrderById(id))
+                    if (Objects.equals(role.getId(), roleById.getId())) {
+                        isChecked = true;
+                        break;
+                    }
+                result.add(isChecked);
+            }
+            return result;
+        } else
+            return getEmptyBooleanRolesList();
     }
 
     public List<Boolean> getEmptyBooleanRolesList() {
@@ -136,5 +111,9 @@ public class DefaultRolesService implements RolesService {
             result.add(false);
         }
         return result;
+    }
+    @Override
+    public Role findById(Long id){
+        return rolesRepository.getById(id);
     }
 }

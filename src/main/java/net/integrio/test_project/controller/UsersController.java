@@ -1,6 +1,9 @@
 package net.integrio.test_project.controller;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.java.Log;
 import net.integrio.test_project.entity.User;
 import net.integrio.test_project.resources.Constants;
@@ -9,15 +12,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 @Controller
@@ -35,69 +37,85 @@ public class UsersController {
 
     @PostMapping("/auth")
     public ModelAndView auth(@RequestParam(Constants.login) String login,
-                       @RequestParam(Constants.password) String password,
-                       Model model, HttpServletRequest request) {
+                             @RequestParam(Constants.password) String password,
+                             HttpServletRequest request) {
         HttpSession session = request.getSession();
         if (userService.auth(login, password)) {
             session.setAttribute(Constants.isAuthorized, true);
             session.setAttribute(Constants.username, login);
-            model.addAttribute("columnSortDir", userService.getColumnsSortDir("id", "asc"));
-            model.addAttribute("userPage", userService.search(PageRequest.of(0, 10), ""));
-            model.addAttribute("pageNumbers", userService.getNumberPages(userService.search(PageRequest.of(1, 10), "")));
-            model.addAttribute("linkParameters", userService.getLinkParameters("", "id", "asc"));
-            return new ModelAndView("users/dashboard");
+
+            PageFormModel pageFormModel = new PageFormModel(0L, 1, "id", "asc", "");
+            return getModelAndView(pageFormModel);
         } else {
             session.setAttribute(Constants.isAuthorized, false);
             User user = new User();
             user.setLogin(login);
-            model.addAttribute("user", user);
             return new ModelAndView("login", "user", user);
         }
     }
 
+    @GetMapping("users/dashboardStart")
+    public ModelAndView dashboardStart(){
+        PageFormModel pageFormModel = new PageFormModel(0L, 1, "id", "asc", "");
+        return getModelAndView(pageFormModel);
+    }
 
     @GetMapping("/users/dashboard")
-    public String search(@RequestParam(value = "page", defaultValue = "1") int page, @RequestParam(value = "keyword", defaultValue = "") String keyword,
-                         @RequestParam(value = "sortedBy", defaultValue = "id") String sortedBy,
-                         @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir, Model model) {
-        int currentPage = Optional.of(page).orElse(1);
-        int pageSize = 10;
-        Sort sort = sortDir.equals("asc") ? Sort.by(sortedBy).ascending() : Sort.by(sortedBy).descending();
-        Page<User> userPage = userService.search(PageRequest.of(currentPage - 1, pageSize, sort), keyword);
-
-        if (userService.getNumberPages(userPage) != null) {
-            model.addAttribute("pageNumbers", userService.getNumberPages(userPage));
-        }
-
-        model.addAttribute("userPage", userPage);
-        model.addAttribute("currentPage", currentPage);
-        model.addAttribute("sortField", sortedBy);
-        model.addAttribute("sortDir", sortDir);
-        model.addAttribute("linkParameters", userService.getLinkParameters(keyword, sortedBy, sortDir));
-        model.addAttribute("columnSortDir", userService.getColumnsSortDir(sortedBy, sortDir));
-        model.addAttribute("keyword", keyword);
-        log.info("page = " + page + ", keyword = " + keyword + ", sortedBy = " + sort);
-        return "users/dashboard";
+    public ModelAndView search(@Validated @ModelAttribute PageFormModel pageFormModel) {
+        return getModelAndView(pageFormModel);
     }
 
     @GetMapping("users/dashboard/delete/{id}")
-    public String deleting(@RequestParam(value = "page", defaultValue = "1") int page, @RequestParam(value = "keyword", defaultValue = "") String keyword,
-                           @RequestParam(value = "sortedBy", defaultValue = "id") String sortedBy,
-                           @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir,
-                           @PathVariable(value = "id") long deleteID, Model model) {
-        int currentPage = Optional.of(page).orElse(1);
-        int pageSize = 10;
-        Sort sort = sortDir.equals("asc") ? Sort.by(sortedBy).ascending() : Sort.by(sortedBy).descending();
-        if (deleteID != 0) {
-            userService.deleteById(deleteID);
-            if (userService.search(PageRequest.of(currentPage - 1, pageSize, sort), keyword).isEmpty())
-                currentPage--;//check if last element on the page
+    public ModelAndView deleting(@Validated @ModelAttribute PageFormModel pageFormModel) {
+          if (pageFormModel.id != 0) {
+             Sort sort = pageFormModel.sortDir.equals("asc") ? Sort.by(pageFormModel.sortField).ascending() : Sort.by(pageFormModel.sortField).descending();
+            userService.deleteById(pageFormModel.id);
+            if (userService.search(PageRequest.of(pageFormModel.page - 1, 10, sort), pageFormModel.keyword).isEmpty())
+                pageFormModel.setPage(pageFormModel.page--);
         }
-        return search(currentPage, keyword, sortedBy, sortDir, model);
+        return getModelAndView(pageFormModel);
     }
 
     @PostMapping("/users/dashboard")
-    public String setKeyword(@RequestParam(Constants.keyword) String keyword, Model model) {
-        return "redirect:/users/dashboard?page=1" + userService.getLinkParameters(keyword,"id","asc");
+    public String setKeyword(@RequestParam(Constants.keyword) String keyword) {
+        return "redirect:/users/dashboard?page=1" + userService.getLinkParameters(keyword, "id", "asc");
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class PageFormModel {
+
+        Long id;
+        @NotNull(message = "Set page")
+        private int page;
+        @NotNull(message = "Set sorting by")
+        @NotEmpty
+        private String sortField;
+        @NotNull(message = "Set sort direction")
+        @NotEmpty
+        private String sortDir;
+
+        private String keyword;
+
+    }
+
+    private ModelAndView getModelAndView(PageFormModel pageFormModel) {
+        int currentPage = Optional.of(pageFormModel.page).orElse(1);
+        int pageSize = 10;
+        Sort sort = pageFormModel.sortDir.equals("asc") ? Sort.by(pageFormModel.sortField).ascending() : Sort.by(pageFormModel.sortField).descending();
+        Page<User> userPage = userService.search(
+                PageRequest.of(currentPage - 1, pageSize, sort), pageFormModel.keyword);
+        ModelAndView modelAndView = new ModelAndView("users/dashboard");
+        modelAndView.addObject("id", pageFormModel.getId());
+        modelAndView.addObject("page", currentPage);
+        modelAndView.addObject("sortField", pageFormModel.getSortField());
+        modelAndView.addObject("sortDir", pageFormModel.getSortDir());
+        modelAndView.addObject("keyword", pageFormModel.getKeyword());
+        modelAndView.addObject("userPage", userPage);
+        modelAndView.addObject("columnSortDir", userService.getColumnsSortDir(pageFormModel.sortField, pageFormModel.sortDir));
+        modelAndView.addObject("pageNumbers",  userService.getNumberPages(userPage));
+        modelAndView.addObject("linkParameters", userService.getLinkParameters(pageFormModel.keyword, pageFormModel.sortField, pageFormModel.sortDir));
+        return modelAndView;
     }
 }

@@ -89,18 +89,18 @@ public class DefaultUsersService implements UserService {
     }
 
     @Override
-    public String getLinkParameters(String keyword, String sortedBy, String sortDir) {
-        return (!keyword.equals("") ? ("&keyword=" + keyword) : "") +
-                (!sortedBy.equals("") ? ("&sortedBy=" + sortedBy) : "") +
+    public String getLinkParameters(String keyword, String sortField, String sortDir) {
+        return ((keyword != null) ? ("&keyword=" + keyword) : "") +
+                (!sortField.equals("") ? ("&sortField=" + sortField) : "") +
                 (!sortDir.equals("") ? ("&sortDir=" + sortDir) : "");
 
     }
 
     @Override
-    public List<String> getColumnsSortDir(String sortedBy, String sortDir) {
+    public List<String> getColumnsSortDir(String sortField, String sortDir) {
         List<String> columnSortDir = new ArrayList<>();//4 columns that sorted, get their sortDirections for links
         for (String column : userSortingColumns) {
-            columnSortDir.add(column.equals(sortedBy) && sortDir.equals("asc") ? "desc" : "asc");
+            columnSortDir.add(column.equals(sortField) && sortDir.equals("asc") ? "desc" : "asc");
         }
         return columnSortDir;
     }

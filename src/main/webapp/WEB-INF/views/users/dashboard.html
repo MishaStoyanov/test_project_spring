@@ -4,8 +4,8 @@
 </head>
 <body>
 <h3>Users list</h3>
-<input type="button" value="Roles" onclick="window.location='/users/roleslist'">
-<input type="button" value="Edit" onclick="window.location='/users/edituser'">
+<input type="button" value="Roles" onclick="window.location='/users/roleslistStart'">
+<input type="button" value="Edit users" onclick="window.location='/users/edituser'">
 <form th:action="@{/users/dashboard}" method="post">
 
     <p><label for="keyword">Search: </label>
@@ -17,18 +17,18 @@
     <thead>
     <tr>
         <th>
-            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'id'}, sortDir=${columnSortDir.get(0)})}">ID</a>
+            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortField=${'id'}, sortDir=${columnSortDir.get(0)})}">ID</a>
         </th>
         <th>
-            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'login'}, sortDir=${columnSortDir.get(1)})}">Login</a>
+            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortField=${'login'}, sortDir=${columnSortDir.get(1)})}">Login</a>
         </th>
         <th>Password</th>
         <th>
-            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'firstname'}, sortDir=${columnSortDir.get(2)})}">First
+            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortField=${'firstname'}, sortDir=${columnSortDir.get(2)})}">First
                 name</a>
         </th>
         <th>
-            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'lastname'}, sortDir=${columnSortDir.get(3)})}">Last
+            <a th:href="@{/users/dashboard(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortField=${'lastname'}, sortDir=${columnSortDir.get(3)})}">Last
                 name</a>
         </th>
         <th>Delete</th>
@@ -43,11 +43,11 @@
         <td th:text="${user.firstname}"></td>
         <td th:text="${user.lastname}"></td>
         <td>
-            <a th:href="'/users/dashboard/delete/' + ${user.id} + '/?page=' + ${currentPage} + ${linkParameters}"
+            <a th:href="'/users/dashboard/delete/' + ${user.id} + '/?page=' + ${page} + ${linkParameters}"
                onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
         </td>
         <td>
-            <a th:href="'/users/edituser?id=' + ${user.getId()}">Edit</a>
+            <a th:href="'/users/edituser?id=' + ${user.id}">Edit</a>
         </td>
     </tr>
     </tbody>
