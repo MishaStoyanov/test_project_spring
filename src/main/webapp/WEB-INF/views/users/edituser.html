@@ -22,7 +22,7 @@
     <p>Password: <input type="text" th:field="*{password}" name="password" size="20"/>
         Last name: <input type="text" th:field="*{lastname}" name="lastname" size="20" th:value=${lastname}/></p>
 
-    <span th:each="role,iterStat : ${rolelist}">
+    <span th:each="role,iterStat : th:field="*{roles}">
         <span th:if="${iterStat.index%10==0}"><br></span>
         <input type="checkbox" id="role" name="roles" th:value="${role.role}"
                th:attr="checked=${userRoles[iterStat.index] ? true : false}">
