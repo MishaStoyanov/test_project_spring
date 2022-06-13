@@ -3,7 +3,6 @@ package net.integrio.test_project.service;
 import lombok.AllArgsConstructor;
 import net.integrio.test_project.entity.Role;
 import net.integrio.test_project.repository.RolesRepository;
-import net.integrio.test_project.repository.UsersRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

@@ -2,7 +2,6 @@ package net.integrio.test_project.entity;
 
 import lombok.*;
 import org.hibernate.Hibernate;
-import org.springframework.beans.factory.annotation.Required;
 
 import javax.persistence.*;
 import java.util.HashSet;
