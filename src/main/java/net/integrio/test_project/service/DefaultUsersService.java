@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
 import net.integrio.test_project.entity.Role;
 import net.integrio.test_project.entity.User;
+import net.integrio.test_project.entity.User_;
 import net.integrio.test_project.repository.RolesRepository;
 import net.integrio.test_project.repository.UsersRepository;
 import org.springframework.data.domain.*;
@@ -43,7 +44,7 @@ public class DefaultUsersService implements UserService {
                 return criteriaBuilder.or(
                         criteriaBuilder.like(
                                 criteriaBuilder.upper(
-                                        root.get("login")
+                                        root.get(User_.login)
                                 ),
                                 criteriaBuilder.upper(
                                         criteriaBuilder.literal("%" + keyword + "%")
@@ -51,7 +52,7 @@ public class DefaultUsersService implements UserService {
                         ),
                         criteriaBuilder.like(
                                 criteriaBuilder.upper(
-                                        root.get("firstname")
+                                        root.get(User_.firstname)
                                 ),
                                 criteriaBuilder.upper(
                                         criteriaBuilder.literal("%" + keyword + "%")
@@ -59,7 +60,7 @@ public class DefaultUsersService implements UserService {
                         ),
                         criteriaBuilder.like(
                                 criteriaBuilder.upper(
-                                        root.get("lastname")
+                                        root.get(User_.lastname)
                                 ),
                                 criteriaBuilder.upper(
                                         criteriaBuilder.literal("%" + keyword + "%")

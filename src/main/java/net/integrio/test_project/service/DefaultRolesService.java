@@ -2,6 +2,7 @@ package net.integrio.test_project.service;
 
 import lombok.AllArgsConstructor;
 import net.integrio.test_project.entity.Role;
+import net.integrio.test_project.entity.Role_;
 import net.integrio.test_project.repository.RolesRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +29,7 @@ public class DefaultRolesService implements RolesService {
                 return criteriaBuilder.or(
                         criteriaBuilder.like(
                                 criteriaBuilder.upper(
-                                        root.get("role")
+                                        root.get(Role_.role)
                                 ),
                                 criteriaBuilder.upper(
                                         criteriaBuilder.literal("%" + keyword + "%")
