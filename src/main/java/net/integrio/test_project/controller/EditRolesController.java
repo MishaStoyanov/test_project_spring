@@ -30,10 +30,6 @@ public class EditRolesController {
 
     @PostMapping("users/changeRoleData")
     public ModelAndView editUser(@Validated @ModelAttribute RoleFormModel roleFormModel) {
-        //1 - get entity form db by id
-        //2 - if null = new
-        //3 - fill from model
-        //4 - save
         Role role = roleFormModel.setFormFieldsToRole();
         rolesService.saveInfo(role);
         return getModelAndView(role);
