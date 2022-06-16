@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Add new user</title>
+    <title>Editing user</title>
 </head>
 <body>
-<h3>Add new user</h3>
-<br><input type="button" value="Dashboard" onclick="window.location='dashboard'">
-<input type="button" value="Roles" onclick="window.location='roleslist'">
+<h3>Edit user</h3>
+<br><input type="button" value="Dashboard" onclick="window.location='dashboardStart'">
+<input type="button" value="Roles" onclick="window.location='roleslistStart'">
 
 <p><input type="button" value="Avatar" onclick="window.location='endpoint'">
 <p>
@@ -15,8 +15,8 @@
     <input type="submit" value="Upload avatar" name="avatarLoading"/>
 </form>
 
-<form method="post" th:object="${currentUser}" action="changeData">
-    <p>Id: <input type="text" name="id" size="20" th:value=${id}></p>
+<form method="post" th:object="${user}" action="changeUserData">
+    <p>Id: <input type="text" name="id" th:field="*{id}" size="20" th:value=${id}></p>
     <p>Login: <input type="text" th:field="*{login}" name="login" size="20" th:value=${login}/>
         First name: <input type="text" th:field="*{firstname}" name="lastname" size="20" th:value=${firstname}/></p>
     <p>Password: <input type="text" th:field="*{password}" name="password" size="20"/>
@@ -24,12 +24,12 @@
 
     <span th:each="role,iterStat : ${rolelist}">
         <span th:if="${iterStat.index%10==0}"><br></span>
-        <input type="checkbox" id="role" name="role" th:value="${role.role}"
+        <input type="checkbox" id="role" name="roles" th:value="${role.role}"
                th:attr="checked=${userRoles[iterStat.index] ? true : false}">
         <label for="role" th:text="${role.role}"></label>
     </span>
 
-    <input type="submit" value="Change data" name="changeUser">
+    <br><input type="submit" value="Change data" name="changeUserData">
 </form>
 </body>
 </html>

@@ -6,16 +6,8 @@
 </head>
 <body>
 <h3>Roles list</h3>
-<input type="button" value="Users" onclick="window.location='dashboard'">
-<input type="button" value="Edit" onclick="window.location='edituser'">
-<form method="post">
-    <p><label for="id">Enter id: </label>
-        <input id="id" type="text" size="3" name="id">
-    <p>Change/add new role: <label for="role">
-    </label><input id="role" type="text" size="20" name="role">
-        <br><br><input type="submit" value="Change data" name="ChangeData">
-    </p>
-</form>
+<input type="button" value="Users" onclick="window.location='/users/dashboardStart'">
+<input type="button" value="Edit roles" onclick="window.location='editrole'">
 
 <form th:action="@{/users/roleslist}" method="post">
     <p><label for="keyword">Search: </label>
@@ -28,12 +20,13 @@
     <thead>
     <tr>
         <th>
-            <a th:href="@{/users/roleslist(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'id'}, sortDir=${columnSortDir.get(0)})}">ID</a>
+            <a th:href="@{/users/roleslist(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortField=${'id'}, sortDir=${columnSortDir.get(0)})}">ID</a>
         </th>
         <th>
-            <a th:href="@{/users/roleslist(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortedBy=${'role'}, sortDir=${columnSortDir.get(0)})}">Roles</a>
+            <a th:href="@{/users/roleslist(page=${1}, keyword=(${keyword != null} ? ${keyword}), sortField=${'role'}, sortDir=${columnSortDir.get(1)})}">Roles</a>
         </th>
         <th>Delete</th>
+        <th>Edit</th>
     </tr>
     </thead>
     <tbody>
@@ -41,8 +34,11 @@
         <td th:text="${roles.id}"></td>
         <td th:text="${roles.role}"></td>
         <td>
-            <a th:href="'/users/roleslist?page=' + ${currentPage} + ${linkParameters} + '&deleteID=' + ${roles.id}"
+            <a th:href="'/users/roleslist/delete/' + ${roles.id} + '/?page=' + ${page} + ${linkParameters}"
                onclick="return confirm('Are you sure you want to delete this role?');">Delete</a>
+        </td>
+        <td>
+            <a th:href="'/users/editrole?id=' + ${roles.id}">Edit</a>
         </td>
     </tr>
     </tbody>

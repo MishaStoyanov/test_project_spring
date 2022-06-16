@@ -112,8 +112,9 @@ public class DefaultRolesService implements RolesService {
         }
         return result;
     }
+
     @Override
-    public Role findById(Long id){
+    public Role findById(Long id) {
         return rolesRepository.getById(id);
     }
 }
