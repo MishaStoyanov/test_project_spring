@@ -10,9 +10,6 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @Log
-//@Component
-//@Order(1)
-//@WebFilter(urlPatterns = {"/users/*"})
 public class LogFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {

@@ -1,10 +1,9 @@
 package net.integrio.test_project.controller;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.java.Log;
 import net.integrio.test_project.entity.Role;
+import net.integrio.test_project.models.EditRoleFormModel;
 import net.integrio.test_project.service.RolesService;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
@@ -13,9 +12,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Controller
 @Log
@@ -29,28 +25,10 @@ public class EditRolesController {
     }
 
     @PostMapping("users/changeRoleData")
-    public ModelAndView editUser(@Validated @ModelAttribute RoleFormModel roleFormModel) {
-        Role role = roleFormModel.setFormFieldsToRole();
+    public ModelAndView editUser(@Validated @ModelAttribute EditRoleFormModel editRoleFormModel) {
+        Role role = editRoleFormModel.setFormFieldsToRole();
         rolesService.saveInfo(role);
         return getModelAndView(role);
-    }
-
-
-    @Getter
-    @Setter
-    public static class RoleFormModel {
-
-        Long id;
-        @NotNull(message = "Fill role")
-        @NotEmpty
-        private String role;
-
-        public Role setFormFieldsToRole() {
-            Role role = new Role();
-            if (id != null) role.setId(id);
-            role.setRole(this.role);
-            return role;
-        }
     }
 
     private ModelAndView getModelAndView(Role role) {

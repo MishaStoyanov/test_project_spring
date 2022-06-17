@@ -11,7 +11,4 @@ import java.util.Optional;
 public interface UsersRepository extends JpaSpecificationExecutor<User>, JpaRepository<User, Long> {
     Optional<User> findByLogin(String login);
     Page<User> findUsersByLoginContainsAndFirstnameContainsAndLastnameContains(String keyword1, String keyword2, String keyword3, Pageable pageable);
-
-    //List<Users> findUsersByRolesId(Long id);
-    //TODO:dv methods
 }

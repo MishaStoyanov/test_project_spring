@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "images.location",
+      "type": "java.lang.String",
+      "description": "Folder, that contains avatars of users."
+  }
+] }

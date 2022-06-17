@@ -1,11 +1,9 @@
 package net.integrio.test_project.controller;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.java.Log;
 import net.integrio.test_project.entity.User;
+import net.integrio.test_project.models.DashboardFormModel;
 import net.integrio.test_project.resources.Constants;
 import net.integrio.test_project.service.UserService;
 import org.springframework.data.domain.Page;
@@ -18,8 +16,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 @Controller
@@ -44,8 +40,8 @@ public class UsersController {
             session.setAttribute(Constants.isAuthorized, true);
             session.setAttribute(Constants.username, login);
 
-            PageFormModel pageFormModel = new PageFormModel(0L, 1, "id", "asc", "");
-            return getModelAndView(pageFormModel);
+            DashboardFormModel dashboardFormModel = new DashboardFormModel(0L, 1, "id", "asc", "");
+            return getModelAndView(dashboardFormModel);
         } else {
             session.setAttribute(Constants.isAuthorized, false);
             User user = new User();
@@ -55,25 +51,25 @@ public class UsersController {
     }
 
     @GetMapping("users/dashboardStart")
-    public ModelAndView dashboardStart(){
-        PageFormModel pageFormModel = new PageFormModel(0L, 1, "id", "asc", "");
-        return getModelAndView(pageFormModel);
+    public ModelAndView dashboardStart() {
+        DashboardFormModel dashboardFormModel = new DashboardFormModel(0L, 1, "id", "asc", "");
+        return getModelAndView(dashboardFormModel);
     }
 
     @GetMapping("/users/dashboard")
-    public ModelAndView search(@Validated @ModelAttribute PageFormModel pageFormModel) {
-        return getModelAndView(pageFormModel);
+    public ModelAndView search(@Validated @ModelAttribute DashboardFormModel dashboardFormModel) {
+        return getModelAndView(dashboardFormModel);
     }
 
     @GetMapping("users/dashboard/delete/{id}")
-    public ModelAndView deleting(@Validated @ModelAttribute PageFormModel pageFormModel) {
-          if (pageFormModel.id != 0) {
-             Sort sort = pageFormModel.sortDir.equals("asc") ? Sort.by(pageFormModel.sortField).ascending() : Sort.by(pageFormModel.sortField).descending();
-            userService.deleteById(pageFormModel.id);
-            if (userService.search(PageRequest.of(pageFormModel.page - 1, 10, sort), pageFormModel.keyword).isEmpty())
-                pageFormModel.setPage(pageFormModel.page--);
+    public ModelAndView deleting(@Validated @ModelAttribute DashboardFormModel dashboardFormModel) {
+        if (dashboardFormModel.getId() != 0) {
+            Sort sort = dashboardFormModel.getSortDir().equals("asc") ? Sort.by(dashboardFormModel.getSortField()).ascending() : Sort.by(dashboardFormModel.getSortField()).descending();
+            userService.deleteById(dashboardFormModel.getId());
+            if (userService.search(PageRequest.of(dashboardFormModel.getPage() - 1, 10, sort), dashboardFormModel.getKeyword()).isEmpty())
+                dashboardFormModel.setPage(dashboardFormModel.getPage() - 1);
         }
-        return getModelAndView(pageFormModel);
+        return getModelAndView(dashboardFormModel);
     }
 
     @PostMapping("/users/dashboard")
@@ -81,41 +77,22 @@ public class UsersController {
         return "redirect:/users/dashboard?page=1" + userService.getLinkParameters(keyword, "id", "asc");
     }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    public static class PageFormModel {
-
-        Long id;
-        @NotNull(message = "Set page")
-        private int page;
-        @NotNull(message = "Set sorting by")
-        @NotEmpty
-        private String sortField;
-        @NotNull(message = "Set sort direction")
-        @NotEmpty
-        private String sortDir;
-
-        private String keyword;
-
-    }
-
-    private ModelAndView getModelAndView(PageFormModel pageFormModel) {
-        int currentPage = Optional.of(pageFormModel.page).orElse(1);
+    private ModelAndView getModelAndView(DashboardFormModel dashboardFormModel) {
+        int currentPage = Optional.of(dashboardFormModel.getPage()).orElse(1);
         int pageSize = 10;
-        Sort sort = pageFormModel.sortDir.equals("asc") ? Sort.by(pageFormModel.sortField).ascending() : Sort.by(pageFormModel.sortField).descending();
+        Sort sort = dashboardFormModel.getSortDir().equals("asc") ? Sort.by(dashboardFormModel.getSortField()).ascending() : Sort.by(dashboardFormModel.getSortField()).descending();
         Page<User> userPage = userService.search(
-                PageRequest.of(currentPage - 1, pageSize, sort), pageFormModel.keyword);
+                PageRequest.of(currentPage - 1, pageSize, sort), dashboardFormModel.getKeyword());
         ModelAndView modelAndView = new ModelAndView("users/dashboard");
-        modelAndView.addObject("id", pageFormModel.getId());
+        modelAndView.addObject("id", dashboardFormModel.getId());
         modelAndView.addObject("page", currentPage);
-        modelAndView.addObject("sortField", pageFormModel.getSortField());
-        modelAndView.addObject("sortDir", pageFormModel.getSortDir());
-        modelAndView.addObject("keyword", pageFormModel.getKeyword());
+        modelAndView.addObject("sortField", dashboardFormModel.getSortField());
+        modelAndView.addObject("sortDir", dashboardFormModel.getSortDir());
+        modelAndView.addObject("keyword", dashboardFormModel.getKeyword());
         modelAndView.addObject("userPage", userPage);
-        modelAndView.addObject("columnSortDir", userService.getColumnsSortDir(pageFormModel.sortField, pageFormModel.sortDir));
-        modelAndView.addObject("pageNumbers",  userService.getNumberPages(userPage));
-        modelAndView.addObject("linkParameters", userService.getLinkParameters(pageFormModel.keyword, pageFormModel.sortField, pageFormModel.sortDir));
+        modelAndView.addObject("columnSortDir", userService.getColumnsSortDir(dashboardFormModel.getSortField(), dashboardFormModel.getSortDir()));
+        modelAndView.addObject("pageNumbers", userService.getNumberPages(userPage));
+        modelAndView.addObject("linkParameters", userService.getLinkParameters(dashboardFormModel.getKeyword(), dashboardFormModel.getSortField(), dashboardFormModel.getSortDir()));
         return modelAndView;
     }
 }

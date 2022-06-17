@@ -1,6 +1,8 @@
 package net.integrio.test_project.controller;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.java.Log;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -13,18 +15,23 @@ import java.io.*;
 
 @Controller
 @AllArgsConstructor
+@Log
 public class AvatarController {
 
+    private Environment environment;
     private ServletContext context;
     private ServletConfig config;
 
     @RequestMapping("users/endpoint")
-    public String start(HttpServletRequest request, HttpServletResponse response) {
+    public void start(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession();
+        String folder = environment.getProperty("images.location");
+
         String avatarpath = (new File(
-                "C:/Users/Acer/IdeaProjects/test_project/src/main/resources/static/images/avatar_" + session.getAttribute("username") + ".jpg").exists())
-                ? "C:/Users/Acer/IdeaProjects/test_project/src/main/resources/static/images/avatar_" + session.getAttribute("username") + ".jpg"
-                : "C:/Users/Acer/IdeaProjects/test_project/src/main/resources/static/images/noavatar.jpg";
+                folder + "avatar_" + session.getAttribute("username") + ".jpg").exists())
+                ? folder + "avatar_" + session.getAttribute("username") + ".jpg"
+                : folder + "/noavatar.jpg";
+
         File file = new File(avatarpath);
         context = config.getServletContext();
         response.setContentType(context.getMimeType(file.getName()));
@@ -45,7 +52,7 @@ public class AvatarController {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (output != null) try {//??getOutputStream() has already been called for this response
+            if (output != null) try {
                 output.close();
             } catch (IOException exception) {
                 System.out.println("Exception" + exception);
@@ -56,6 +63,5 @@ public class AvatarController {
                 System.out.println("Exception" + exception);
             }
         }
-        return "users/endpoint";
     }
 }

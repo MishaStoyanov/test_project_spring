@@ -107,7 +107,7 @@ public class DefaultRolesService implements RolesService {
 
     public List<Boolean> getEmptyBooleanRolesList() {
         List<Boolean> result = new ArrayList<>();
-        for (Role role : rolesRepository.findAll()) {
+        for (Role ignored : rolesRepository.findAll()) {
             result.add(false);
         }
         return result;

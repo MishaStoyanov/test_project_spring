@@ -1,12 +1,10 @@
 package net.integrio.test_project.controller;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.java.Log;
 
 import net.integrio.test_project.entity.Role;
+import net.integrio.test_project.models.RolesListFormModel;
 import net.integrio.test_project.resources.Constants;
 import net.integrio.test_project.service.RolesService;
 import org.springframework.data.domain.Page;
@@ -20,8 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 @Controller
@@ -49,40 +45,21 @@ public class RolesController {
 
     @GetMapping("users/roleslist/delete/{id}")
     public ModelAndView deleting(@Validated @ModelAttribute RolesListFormModel rolesListFormModel) {
-        if (rolesListFormModel.id != 0) {
-            Sort sort = rolesListFormModel.sortDir.equals("asc") ? Sort.by(rolesListFormModel.sortField).ascending() : Sort.by(rolesListFormModel.sortField).descending();
-            rolesService.deleteById(rolesListFormModel.id);
-            if (rolesService.search(PageRequest.of(rolesListFormModel.page - 1, 10, sort), rolesListFormModel.keyword).isEmpty())
-                rolesListFormModel.setPage(rolesListFormModel.page--);
+        if (rolesListFormModel.getId() != 0) {
+            Sort sort = rolesListFormModel.getSortDir().equals("asc") ? Sort.by(rolesListFormModel.getSortField()).ascending() : Sort.by(rolesListFormModel.getSortField()).descending();
+            rolesService.deleteById(rolesListFormModel.getId());
+            if (rolesService.search(PageRequest.of(rolesListFormModel.getPage() - 1, 10, sort), rolesListFormModel.getKeyword()).isEmpty())
+                rolesListFormModel.setPage(rolesListFormModel.getPage() - 1);
         }
         return getModelAndView(rolesListFormModel);
     }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    public static class RolesListFormModel {
-
-        Long id;
-        @NotNull(message = "Set page")
-        private int page;
-        @NotNull(message = "Set sorting by")
-        @NotEmpty
-        private String sortField;
-        @NotNull(message = "Set sort direction")
-        @NotEmpty
-        private String sortDir;
-
-        private String keyword;
-
-    }
-
     private ModelAndView getModelAndView(RolesListFormModel rolesListFormModel) {
-        int currentPage = Optional.of(rolesListFormModel.page).orElse(1);
+        int currentPage = Optional.of(rolesListFormModel.getPage()).orElse(1);
         int pageSize = 10;
-        Sort sort = rolesListFormModel.sortDir.equals("asc") ? Sort.by(rolesListFormModel.sortField).ascending() : Sort.by(rolesListFormModel.sortField).descending();
+        Sort sort = rolesListFormModel.getSortDir().equals("asc") ? Sort.by(rolesListFormModel.getSortField()).ascending() : Sort.by(rolesListFormModel.getSortField()).descending();
         Page<Role> rolesPage = rolesService.search(
-                PageRequest.of(currentPage - 1, pageSize, sort), rolesListFormModel.keyword);
+                PageRequest.of(currentPage - 1, pageSize, sort), rolesListFormModel.getKeyword());
         ModelAndView modelAndView = new ModelAndView("users/roleslist");
         modelAndView.addObject("id", rolesListFormModel.getId());
         modelAndView.addObject("page", currentPage);
@@ -90,9 +67,9 @@ public class RolesController {
         modelAndView.addObject("sortDir", rolesListFormModel.getSortDir());
         modelAndView.addObject("keyword", rolesListFormModel.getKeyword());
         modelAndView.addObject("rolesPage", rolesPage);
-        modelAndView.addObject("columnSortDir", rolesService.getColumnsSortDir(rolesListFormModel.sortField, rolesListFormModel.sortDir));
+        modelAndView.addObject("columnSortDir", rolesService.getColumnsSortDir(rolesListFormModel.getSortField(), rolesListFormModel.getSortDir()));
         modelAndView.addObject("pageNumbers", rolesService.getNumberPages(rolesPage));
-        modelAndView.addObject("linkParameters", rolesService.getLinkParameters(rolesListFormModel.keyword, rolesListFormModel.sortField, rolesListFormModel.sortDir));
+        modelAndView.addObject("linkParameters", rolesService.getLinkParameters(rolesListFormModel.getKeyword(), rolesListFormModel.getSortField(), rolesListFormModel.getSortDir()));
         return modelAndView;
     }
 }
